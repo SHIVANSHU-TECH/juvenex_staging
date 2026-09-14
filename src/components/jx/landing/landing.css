@@ -1,0 +1,899 @@
+/*
+ * Landing-page layout for the Juvenex storefront skin.
+ *
+ * Everything here is namespaced `.jxl-*` and only imported by
+ * `src/app/(jx)/home/page.tsx`. It exists as a stylesheet rather than inline
+ * styles because the landing page is the one place in the skin that needs real
+ * media queries (the hero swaps between a static and a scroll-scrubbed layout,
+ * and every grid re-flows three times between 360px and 1920px) — and media
+ * queries cannot be expressed in the `style` prop.
+ *
+ * Tokens come from jx.css; nothing here redefines a colour.
+ */
+
+/* ================================================================ layout === */
+
+.jxl-sec {
+  max-width: var(--jx-maxw);
+  margin-inline: auto;
+  padding-inline: var(--jx-gutter);
+  padding-block-start: 48px;
+}
+.jxl-sec--first {
+  padding-block-start: 30px;
+}
+/* The design gives membership / how / members / quiz a taller lead-in (70px). */
+.jxl-sec--major {
+  padding-block-start: 54px;
+}
+.jxl-sec--last {
+  padding-block-end: 64px;
+}
+
+.jxl-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.jxl-h2 {
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1.06;
+  margin: 0;
+  color: var(--jx-ink);
+}
+
+/* Inline "View all →" style link. 44px tall so it is a legal touch target. */
+.jxl-more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--jx-brand);
+  text-decoration: none;
+}
+.jxl-more:hover {
+  color: var(--jx-brand-dark);
+  text-decoration: underline;
+}
+
+.jxl-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--jx-muted);
+}
+
+.jxl-grid {
+  display: grid;
+  gap: 14px;
+}
+.jxl-grid--cat {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr));
+}
+.jxl-grid--goal {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 172px), 1fr));
+}
+.jxl-grid--tile {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+.jxl-grid--tier {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+.jxl-grid--quote {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+}
+.jxl-grid--value {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 26px;
+}
+
+@media (min-width: 900px) {
+  .jxl-sec {
+    padding-block-start: 60px;
+  }
+  .jxl-sec--first {
+    padding-block-start: 34px;
+  }
+  .jxl-sec--major {
+    padding-block-start: 70px;
+  }
+}
+
+/* ================================================================== hero === */
+
+/*
+ * Direct port of the design's `#jx-hero`: a 700vh scroll track with a sticky
+ * stage, two cross-fading videos scrubbed by scroll position, and five text
+ * phases fading through on top. Hero.tsx owns the scrub maths and writes
+ * opacity/transform straight to these elements.
+ */
+
+.jxl-hero {
+  height: 700vh;
+  position: relative;
+}
+
+.jxl-hero__stage {
+  position: sticky;
+  top: calc(var(--jx-chrome-h) + env(safe-area-inset-top));
+  height: calc(100vh - var(--jx-chrome-h) - env(safe-area-inset-top) - 14px);
+  margin: 0 14px;
+  border-radius: var(--jx-r-xl);
+  overflow: hidden;
+  background: #faf8f3;
+  isolation: isolate;
+}
+
+.jxl-hero__still {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.jxl-hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+.jxl-hero__video--b {
+  opacity: 0;
+}
+/* Until a source is attached the element is an empty black box — keep it out
+   of the way so the still photograph shows through. */
+.jxl-hero__video:not([src]) {
+  display: none;
+}
+
+/*
+ * Legibility scrim. The design's copy is dark ink, which assumes a pale video
+ * frame; over photography or a darker frame it would drop below AA. A soft
+ * light wash keeps the text readable whatever the media underneath is doing.
+ */
+.jxl-hero__stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(244, 242, 237, 0.78) 0%, rgba(244, 242, 237, 0.34) 42%, rgba(244, 242, 237, 0.72) 100%),
+    radial-gradient(120% 90% at 50% 40%, rgba(244, 242, 237, 0) 40%, rgba(244, 242, 237, 0.55) 100%);
+}
+
+.jxl-hero__phase {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  padding: 0 7vw;
+  opacity: 0;
+}
+.jxl-hero__phase--center {
+  justify-content: center;
+  text-align: center;
+}
+.jxl-hero__phase--start {
+  justify-content: flex-start;
+}
+.jxl-hero__phase--end {
+  justify-content: flex-end;
+}
+
+.jxl-hero__wordmark {
+  font-size: clamp(58px, 10.5vw, 170px);
+  line-height: 0.92;
+  letter-spacing: 0.04em;
+  margin: 16px 0 18px;
+  color: var(--jx-ink);
+}
+
+.jxl-hero__lede {
+  margin: 0 auto;
+  max-width: 440px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--jx-body);
+}
+
+.jxl-hero__copy {
+  max-width: 440px;
+}
+.jxl-hero__copy--wide {
+  max-width: 500px;
+}
+
+.jxl-hero__headline {
+  font-size: clamp(34px, 5vw, 84px);
+  line-height: 0.98;
+  margin: 14px 0 16px;
+  color: var(--jx-ink);
+}
+.jxl-hero__headline--lg {
+  font-size: clamp(38px, 5.6vw, 92px);
+  line-height: 0.96;
+}
+
+.jxl-hero__body {
+  margin: 0;
+  max-width: 380px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--jx-body);
+}
+
+.jxl-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.jxl-hero__note {
+  margin: 18px 0 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--jx-muted);
+}
+
+.jxl-hero__hint {
+  position: absolute;
+  z-index: 3;
+  bottom: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+.jxl-hero__hint-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--jx-muted);
+}
+.jxl-hero__hint-arrow {
+  font-size: 14px;
+  color: var(--jx-brand);
+  animation: jx-pulse 1.6s ease-in-out infinite;
+}
+
+/*
+ * No-JS: the phases ship at opacity 0 so the scrub can drive them, which would
+ * leave a blank hero if the script never runs. Reveal the wordmark instead.
+ */
+.jxl-hero:not([data-ready]) .jxl-hero__phase--center {
+  opacity: 1;
+}
+
+/*
+ * Reduced motion: no scroll track, no scrub. The stage becomes a normal block
+ * and Hero.tsx pins phase 4 (the call to action) as the single visible frame.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .jxl-hero {
+    height: auto;
+  }
+  .jxl-hero__stage {
+    position: relative;
+    top: 0;
+    height: min(86vh, 720px);
+  }
+  .jxl-hero__hint {
+    display: none;
+  }
+}
+
+
+/* ========================================================== trust strip === */
+
+.jxl-trust {
+  display: grid;
+  /* Design: minmax(170px, 1fr). The min() keeps the track from overflowing a
+     360px viewport, where it collapses to one column. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 18px;
+  background: var(--jx-surface);
+  border: 1px solid var(--jx-line);
+  border-radius: var(--jx-r-lg);
+  padding: 20px;
+}
+.jxl-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--jx-brand);
+}
+.jxl-trust-item b {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--jx-ink);
+}
+.jxl-trust-item span {
+  font-size: 12px;
+  color: var(--jx-muted);
+}
+
+@media (min-width: 900px) {
+  .jxl-trust {
+    padding: 22px 26px;
+  }
+}
+
+/* ============================================================ photo cards === */
+
+.jxl-cat {
+  position: relative;
+  display: block;
+  height: 320px;
+  border-radius: var(--jx-r-lg);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--jx-on-deep);
+}
+.jxl-cat img {
+  object-fit: cover;
+  transition: scale 0.5s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+.jxl-cat:hover img {
+  scale: 1.045;
+}
+.jxl-cat-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(35, 43, 35, 0) 42%, rgba(35, 43, 35, 0.88) 100%);
+}
+.jxl-cat-body {
+  position: absolute;
+  left: 18px;
+  right: 62px;
+  bottom: 16px;
+}
+.jxl-cat-title {
+  display: block;
+  font-size: 21px;
+  line-height: 1.15;
+  color: var(--jx-on-deep);
+}
+.jxl-cat-desc {
+  margin: 5px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: rgba(242, 241, 234, 0.8);
+}
+.jxl-cat-arrow {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(242, 241, 234, 0.92);
+  color: var(--jx-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jxl-goal {
+  display: block;
+  background: var(--jx-surface);
+  border: 1px solid var(--jx-line);
+  border-radius: var(--jx-r-md);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--jx-ink);
+}
+.jxl-goal:hover {
+  border-color: var(--jx-line-strong);
+}
+.jxl-goal-img {
+  position: relative;
+  height: 210px;
+}
+.jxl-goal-img img {
+  object-fit: cover;
+}
+.jxl-goal-body {
+  padding: 13px 15px 15px;
+}
+.jxl-goal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--jx-ink);
+}
+.jxl-goal-row span:last-child {
+  color: var(--jx-brand);
+  flex: none;
+}
+.jxl-goal-desc {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--jx-muted);
+}
+
+/* ============================================================== rail ====== */
+
+.jxl-railbtns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.jxl-railbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 1px solid var(--jx-line-strong);
+  border-radius: 50%;
+  background: var(--jx-surface);
+  color: var(--jx-ink);
+  cursor: pointer;
+}
+.jxl-railbtn:hover:not(:disabled) {
+  border-color: var(--jx-brand);
+  color: var(--jx-brand);
+}
+.jxl-railbtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+/* The rail is focusable so keyboard users can scroll it; make that visible. */
+.jxl-rail:focus-visible {
+  outline: 2px solid var(--jx-brand);
+  outline-offset: 4px;
+  border-radius: var(--jx-r-md);
+}
+.jxl-rail {
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.jxl-rail::-webkit-scrollbar {
+  display: none;
+}
+
+/* Rail card — design lines 196–205. 252px fixed, so it fits a 360px viewport
+   inside the scroller without ever widening the page. */
+.jxl-rec {
+  flex: none;
+  width: 252px;
+  display: flex;
+  flex-direction: column;
+  background: var(--jx-surface);
+  border: 1px solid var(--jx-line);
+  border-radius: var(--jx-r-md);
+  overflow: hidden;
+  box-shadow: 0 14px 38px rgba(57, 53, 46, 0.08);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.jxl-rec:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 46px rgba(57, 53, 46, 0.13);
+}
+.jxl-rec-art {
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--jx-bg-soft);
+  overflow: hidden;
+}
+.jxl-rec-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 7px;
+  padding: 16px 16px 18px;
+}
+.jxl-rec-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--jx-ink);
+}
+.jxl-rec-strength {
+  margin: -4px 0 0;
+  font-size: 12.5px;
+  color: var(--jx-muted);
+}
+.jxl-rec-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--jx-muted);
+}
+.jxl-rec-price {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--jx-ink);
+}
+/* Both calls to action are pills; the link one needs the button's box. */
+.jxl-rec .jx-btn {
+  text-decoration: none;
+}
+
+/* =========================================================== featured ===== */
+
+.jxl-featured {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 330px;
+  border-radius: var(--jx-r-xl);
+  overflow: hidden;
+}
+.jxl-featured img {
+  object-fit: cover;
+}
+.jxl-featured-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(244, 242, 237, 0.72) 0%,
+    rgba(244, 242, 237, 0.95) 46%,
+    rgba(244, 242, 237, 0.97) 100%
+  );
+}
+.jxl-featured-body {
+  position: relative;
+  padding: 36px clamp(20px, 5vw, 56px);
+  max-width: 520px;
+}
+.jxl-featured-title {
+  font-size: clamp(30px, 3.6vw, 48px);
+  line-height: 1.02;
+  margin: 12px 0;
+  color: var(--jx-ink);
+}
+.jxl-featured-copy {
+  margin: 0 0 22px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--jx-body);
+}
+.jxl-featured-price {
+  font-size: 26px;
+  color: var(--jx-ink);
+}
+.jxl-featured .jx-btn {
+  text-decoration: none;
+}
+
+@media (min-width: 760px) {
+  .jxl-featured-scrim {
+    background: linear-gradient(
+      90deg,
+      rgba(244, 242, 237, 0.96) 0%,
+      rgba(244, 242, 237, 0.82) 34%,
+      rgba(244, 242, 237, 0) 62%
+    );
+  }
+  .jxl-featured-body {
+    padding-block: 44px;
+    max-width: 480px;
+  }
+}
+
+/* ============================================================== tiles ===== */
+
+.jxl-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+  border-radius: var(--jx-r-lg);
+  overflow: hidden;
+  color: var(--jx-on-deep);
+}
+.jxl-tile--dark {
+  background: linear-gradient(165deg, var(--jx-deep-soft) 0%, var(--jx-deep) 100%);
+  padding: 26px;
+}
+.jxl-tile img {
+  object-fit: cover;
+}
+.jxl-tile-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(35, 43, 35, 0.08) 30%, rgba(35, 43, 35, 0.88) 100%);
+}
+.jxl-tile-body {
+  position: relative;
+  margin-top: auto;
+  padding: 22px;
+}
+.jxl-tile--dark .jxl-tile-body {
+  padding: 0;
+}
+.jxl-tile-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--jx-on-deep);
+}
+.jxl-tile-body p {
+  margin: 7px 0 13px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: rgba(242, 241, 234, 0.76);
+}
+.jxl-tile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--jx-on-deep);
+  text-decoration: none;
+}
+.jxl-tile-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* ========================================================= membership ===== */
+
+.jxl-tier {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--jx-surface);
+  border: 1px solid var(--jx-line);
+  border-radius: var(--jx-r-lg);
+  padding: 26px;
+}
+.jxl-tier--featured {
+  position: relative;
+  background: linear-gradient(170deg, var(--jx-deep-soft) 0%, var(--jx-deep) 100%);
+  border-color: transparent;
+  color: var(--jx-on-deep);
+}
+.jxl-tier-kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--jx-muted);
+}
+.jxl-tier--featured .jxl-tier-kicker {
+  color: rgba(242, 241, 234, 0.65);
+}
+.jxl-tier-name {
+  font-size: 15.5px;
+  font-weight: 600;
+  margin: 0;
+  color: inherit;
+}
+.jxl-tier-price {
+  font-size: 34px;
+  line-height: 1;
+  color: inherit;
+}
+.jxl-tier-price small {
+  font-family: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--jx-muted);
+}
+.jxl-tier--featured .jxl-tier-price small {
+  color: rgba(242, 241, 234, 0.65);
+}
+.jxl-tier ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--jx-body);
+}
+.jxl-tier--featured ul {
+  color: rgba(242, 241, 234, 0.85);
+}
+.jxl-tier li {
+  display: flex;
+  gap: 8px;
+}
+.jxl-tier li svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--jx-brand);
+}
+.jxl-tier--featured li svg {
+  color: rgba(242, 241, 234, 0.9);
+}
+.jxl-tier-flag {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--jx-gold);
+  color: var(--jx-deep);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+.jxl-tier .jx-btn {
+  margin-top: auto;
+  width: 100%;
+  font-size: 13.5px;
+  text-decoration: none;
+}
+
+/* ============================================================== steps ===== */
+
+.jxl-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 214px), 1fr));
+  /* 1px gap over a line-coloured background draws the dividers. */
+  gap: 1px;
+  background: var(--jx-line);
+  border: 1px solid var(--jx-line);
+  border-radius: var(--jx-r-lg);
+  overflow: hidden;
+}
+.jxl-step {
+  background: var(--jx-surface);
+  padding: 30px 26px;
+}
+.jxl-step .jxl-step-n {
+  margin: 0 0 38px;
+  font-size: 15px;
+  color: var(--jx-faint);
+}
+.jxl-step h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 7px;
+  color: var(--jx-ink);
+}
+.jxl-step p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--jx-muted);
+}
+
+/* ============================================================= quotes ===== */
+
+/* "4.9 average across 12,400 reviews", beside the heading. */
+.jxl-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--jx-muted);
+}
+
+.jxl-quote {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--jx-surface);
+  border: 1px solid var(--jx-line);
+  border-radius: var(--jx-r-lg);
+  padding: 24px;
+}
+.jxl-quote blockquote {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--jx-ink);
+  flex: 1;
+}
+.jxl-quote figcaption {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.jxl-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 50%;
+  background: #e9ede4;
+  color: var(--jx-brand);
+  font-size: 12px;
+  font-weight: 600;
+}
+.jxl-quote-who {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--jx-ink);
+}
+.jxl-quote-topic {
+  font-size: 12px;
+  color: var(--jx-muted);
+}
+
+/* =============================================================== quiz ===== */
+
+.jxl-quiz {
+  position: relative;
+  border-radius: var(--jx-r-xl);
+  overflow: hidden;
+  padding: clamp(52px, 8vw, 100px) clamp(20px, 6vw, 60px);
+  text-align: center;
+}
+.jxl-quiz img {
+  object-fit: cover;
+}
+.jxl-quiz-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(35, 43, 35, 0.84);
+}
+.jxl-quiz-body {
+  position: relative;
+}
+.jxl-quiz h2 {
+  font-size: clamp(34px, 5vw, 64px);
+  line-height: 1.02;
+  margin: 16px auto;
+  max-width: 700px;
+  color: var(--jx-on-deep);
+}
+.jxl-quiz p {
+  margin: 0 auto 26px;
+  max-width: 460px;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: rgba(242, 241, 234, 0.82);
+}
+
+/* ============================================================= values ===== */
+
+.jxl-value {
+  display: flex;
+  gap: 13px;
+  color: var(--jx-brand);
+}
+.jxl-value b {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--jx-ink);
+  margin-bottom: 4px;
+}
+.jxl-value span {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--jx-muted);
+}

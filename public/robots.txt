@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /provider
+Disallow: /organization
+Disallow: /org/
+Disallow: /api/
+Disallow: /intake
+
+Sitemap: https://juvenex.space/sitemap.xml

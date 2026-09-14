@@ -1,0 +1,84 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env.local
+.env.local.bak
+.env*.local
+.env
+.env.backup
+.env.*.backup
+
+# Local .env backups from tooling
+.env.local.bak-*
+.env*.bak-*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+.next-dev/
+
+# TLS keys and cert artifacts
+*.key
+*.crt
+*.cer
+*.der
+*.p12
+*.pfx
+*.csr
+*.jks
+*.keystore
+# SSH private keys (public .pub counterparts are safe to commit)
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+*_rsa
+*_ed25519
+!*.pub
+
+# Netlify build output (stale; was committed by mistake)
+.netlify/
+
+# Alternate build outputs (NEXT_DIST_DIR=... npx next build/dev)
+/.next-staging/
+/.next-stage2/
+/.next-staging-*/
+/.next.backup-*/
+
+# Internal client-update pages. braeden.html names a real person's
+# prescription products; it must not be public or committed.
+# See docs/STAGE1_DECISIONS.md, blocker #8 item 2.
+/public/updates/

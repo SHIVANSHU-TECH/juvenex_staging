@@ -1,0 +1,751 @@
+/*
+ * Juvenex storefront skin — tokens + primitives.
+ *
+ * Ported from the "Juvenex Site.dc.html" Claude Design project. Scoped under
+ * `.jx` so it cannot leak into the existing app shell (dashboard, community,
+ * admin), which keeps its own palette from globals.css.
+ *
+ * Mirror of src/lib/jx/tokens.ts — update both together.
+ */
+
+.jx {
+  --jx-bg: #f4f2ed;
+  --jx-bg-soft: #fbfaf6;
+  --jx-surface: #ffffff;
+  --jx-line: #e7e4db;
+  --jx-line-strong: #dbd8cd;
+
+  --jx-ink: #1c221b;
+  --jx-brand: #2d352c;
+  --jx-brand-dark: #1f261f;
+  --jx-deep: #232b23;
+  --jx-deep-soft: #2f3a2e;
+  --jx-on-deep: #f2f1ea;
+
+  /* Contrast-checked against --jx-bg (#f4f2ed) and #ffffff.
+     muted 4.84:1, body 7.4:1, faint 4.52:1 — all clear WCAG AA for normal text.
+     The design's original #6a7164/#9aa093 measured 4.51 and 2.40; faint was
+     used for input placeholders, which must meet 4.5:1 like any other text. */
+  --jx-muted: #666c60;
+  --jx-body: #4a5046;
+  --jx-faint: #6c7067;
+  --jx-gold: #c9a227;
+
+  /* Fixed chrome height — pages offset their first section by this. */
+  --jx-chrome-h: 110px;
+
+  --jx-r-sm: 12px;
+  --jx-r-md: 16px;
+  --jx-r-lg: 18px;
+  --jx-r-xl: 22px;
+
+  --jx-shadow: 0 10px 26px rgba(35, 43, 35, 0.14);
+  --jx-shadow-lg: 0 16px 40px rgba(28, 34, 27, 0.3);
+
+  /* The design uses tighter gutters on phones than the 22px desktop value. */
+  --jx-gutter: 16px;
+  --jx-maxw: 1280px;
+
+  background: var(--jx-bg);
+  color: var(--jx-ink);
+  font-family: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (min-width: 900px) {
+  .jx {
+    --jx-chrome-h: 158px;
+    --jx-gutter: 22px;
+  }
+}
+
+/* ---------------------------------------------------------------- type --- */
+
+/*
+ * GC Commune is the display face: headlines, prices, the wordmark. It has no
+ * bold cut, so never synthesise one — `font-weight: 400` everywhere.
+ */
+.jx-display {
+  font-family: var(--font-commune), ui-serif, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Eyebrow labels: 11px, heavily tracked, uppercase. */
+.jx-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--jx-brand);
+}
+
+.jx-shell {
+  max-width: var(--jx-maxw);
+  margin-inline: auto;
+  padding-inline: var(--jx-gutter);
+}
+
+/* ------------------------------------------------------------- surfaces --- */
+
+.jx-card {
+  background: var(--jx-surface);
+  border: 1px solid var(--jx-line);
+  border-radius: var(--jx-r-md);
+}
+
+.jx-tile-dark {
+  background: linear-gradient(165deg, var(--jx-deep-soft) 0%, var(--jx-deep) 100%);
+  color: var(--jx-on-deep);
+  border-radius: var(--jx-r-lg);
+}
+
+/* ------------------------------------------------------------- controls --- */
+
+.jx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  text-align: center;
+  /* 44px minimum hit target (WCAG 2.2 AA — 2.5.8 Target Size). */
+  min-height: 44px;
+  padding: 0 26px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.25s ease-out;
+}
+
+.jx-btn-primary {
+  background: var(--jx-brand);
+  color: var(--jx-on-deep);
+}
+.jx-btn-primary:hover:not(:disabled) {
+  background: var(--jx-brand-dark);
+}
+
+.jx-btn-ghost {
+  background: transparent;
+  border-color: rgba(28, 34, 27, 0.35);
+  color: var(--jx-ink);
+}
+.jx-btn-ghost:hover:not(:disabled) {
+  border-color: var(--jx-ink);
+}
+
+.jx-btn-onDark {
+  background: var(--jx-on-deep);
+  color: var(--jx-deep);
+}
+.jx-btn-onDark:hover:not(:disabled) {
+  background: #ffffff;
+}
+
+.jx-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.jx-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 16px;
+  border: 1px solid var(--jx-line-strong);
+  border-radius: 12px;
+  background: var(--jx-surface);
+  color: var(--jx-ink);
+  font: inherit;
+  font-size: 15px; /* >=16px avoids iOS zoom-on-focus; 15px + the rule below */
+  outline: none;
+}
+/* iOS Safari zooms the viewport when focusing an input under 16px. */
+@supports (-webkit-touch-callout: none) {
+  .jx-input,
+  .jx select,
+  .jx textarea {
+    font-size: 16px;
+  }
+}
+.jx-input::placeholder {
+  color: var(--jx-faint);
+}
+.jx-input:focus-visible {
+  border-color: var(--jx-brand);
+  box-shadow: 0 0 0 3px rgba(45, 53, 44, 0.16);
+}
+.jx-input[aria-invalid='true'] {
+  border-color: #b3261e;
+}
+
+/* Focus ring — inherits the app-wide :focus-visible rule but on brand green. */
+.jx :focus-visible {
+  outline: 2px solid var(--jx-brand);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------- a11y ------ */
+
+.jx-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Horizontal scrollers keep their scrollbar off-screen but stay keyboard- and
+   screen-reader-reachable (they carry tabindex + role in the JSX).
+
+   `position: relative` is load-bearing, not decoration. An absolutely
+   positioned descendant is only clipped by an ancestor's `overflow` if that
+   ancestor is its *containing block*. Without this, a `.jx-sr` span deep in a
+   card resolves against the initial containing block, escapes the scroller
+   entirely, and drags the whole document's scrollWidth out to the full width
+   of the scrolled content — a page-wide horizontal scrollbar caused by a 1px
+   invisible label. */
+.jx-scroller {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding-bottom: 8px;
+}
+.jx-scroller > * {
+  scroll-snap-align: start;
+}
+
+/* --------------------------------------------------------- motion -------- */
+
+@keyframes jx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes jx-pulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(7px);
+    opacity: 0.35;
+  }
+}
+
+@keyframes jx-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Elements the reveal observer will fade in. Start hidden ONLY when JS can
+   take over — `.jx-reveal` is applied by the observer hook after mount, so a
+   no-JS or hydration-failed render still shows the content. */
+.jx-reveal-armed {
+  opacity: 0;
+  transform: translateY(26px);
+}
+.jx-reveal-in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.8s cubic-bezier(0.2, 0.6, 0.2, 1),
+    transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.jx-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #eceade;
+}
+.jx-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: jx-shimmer 1.4s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jx *,
+  .jx *::before,
+  .jx *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .jx-reveal-armed {
+    opacity: 1;
+    transform: none;
+  }
+  .jx-skeleton::after {
+    display: none;
+  }
+}
+
+/* ================================================================ chrome === */
+
+.jx-utility {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  height: 38px;
+  padding-inline: var(--jx-gutter);
+  background: var(--jx-deep);
+  color: var(--jx-on-deep);
+  font-size: 12px;
+}
+/* Hit areas: WCAG 2.2 AA (2.5.8) wants 24x24 minimum. Inline text links are
+   ~18px tall, so nav/footer links stretch to fill their bar instead. */
+.jx-utility-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  color: rgba(242, 241, 234, 0.85);
+  font-size: 12px;
+  text-decoration: none;
+}
+.jx-utility-link:hover {
+  color: #ffffff;
+}
+
+.jx-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 62px;
+  padding-inline: var(--jx-gutter);
+  background: var(--jx-surface);
+  border-bottom: 1px solid var(--jx-line);
+}
+
+.jx-wordmark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  color: var(--jx-ink);
+  text-decoration: none;
+}
+/* next/image warns when CSS changes one dimension without the other being
+   `auto`; keep height auto so the intrinsic aspect ratio drives it. */
+.jx-wordmark img {
+  width: 30px;
+  height: auto;
+}
+/* Logo mark only below 900px so the search pill gets the width. */
+.jx-wordmark .jx-display {
+  display: none;
+}
+
+/* Search stays visible at every width — it is the primary way into a
+   60-product catalogue. On phones the wordmark drops to the logo mark alone to
+   make room (see the .jx-wordmark rule above). */
+.jx-search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  max-width: 560px;
+  border: 1px solid var(--jx-line-strong);
+  border-radius: 999px;
+  padding: 4px 4px 4px 18px;
+  background: var(--jx-bg-soft);
+}
+.jx-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--jx-ink);
+  outline: none;
+  /* the pill itself shows the focus ring */
+}
+.jx-search input::placeholder {
+  color: var(--jx-faint);
+}
+.jx-search:focus-within {
+  border-color: var(--jx-brand);
+  box-shadow: 0 0 0 3px rgba(45, 53, 44, 0.14);
+}
+.jx-search input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+.jx-search-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border: none;
+  border-radius: 50%;
+  background: var(--jx-brand);
+  color: var(--jx-on-deep);
+  cursor: pointer;
+}
+.jx-search-go:hover {
+  background: var(--jx-brand-dark);
+}
+
+.jx-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+.jx-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding-inline: 8px;
+  color: var(--jx-ink);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 10px;
+}
+.jx-action:hover {
+  color: var(--jx-brand);
+  background: var(--jx-bg-soft);
+}
+.jx-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 5px;
+  border-radius: 999px;
+  background: var(--jx-brand);
+  color: var(--jx-on-deep);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.jx-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  margin-left: -8px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--jx-ink);
+  cursor: pointer;
+}
+.jx-iconbtn:hover {
+  background: var(--jx-bg-soft);
+}
+
+.jx-nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 48px;
+  padding-inline: var(--jx-gutter);
+  background: var(--jx-surface);
+  border-bottom: 1px solid var(--jx-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.jx-nav::-webkit-scrollbar {
+  display: none;
+}
+.jx-nav-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  padding-inline: 2px;
+  color: #3a4038;
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.jx-nav-link:first-child {
+  font-weight: 600;
+  color: var(--jx-ink);
+}
+.jx-nav-link:hover {
+  color: var(--jx-brand);
+}
+.jx-nav-cta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--jx-brand);
+  color: var(--jx-brand);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 18px;
+  border-radius: 999px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.jx-nav-cta:hover {
+  background: var(--jx-brand);
+  color: var(--jx-on-deep);
+}
+
+.jx-only-mobile {
+  display: inline-flex;
+}
+.jx-hide-sm {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .jx-utility {
+    display: flex;
+  }
+  .jx-header {
+    height: 72px;
+    gap: clamp(14px, 3vw, 34px);
+  }
+  .jx-wordmark img {
+    width: 36px;
+    height: auto;
+  }
+  .jx-wordmark .jx-display {
+    display: inline;
+  }
+  .jx-header-actions {
+    gap: clamp(6px, 1.4vw, 18px);
+  }
+  .jx-only-mobile {
+    display: none;
+  }
+  .jx-hide-sm {
+    display: inline;
+  }
+  .jx-nav {
+    gap: clamp(16px, 2.4vw, 30px);
+  }
+}
+
+/* mobile drawer */
+.jx-drawer-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(28, 34, 27, 0.45);
+  display: flex;
+  justify-content: flex-start;
+}
+.jx-drawer {
+  width: min(320px, 86vw);
+  height: 100%;
+  overflow-y: auto;
+  background: var(--jx-surface);
+  padding: calc(20px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: var(--jx-shadow-lg);
+}
+.jx-drawer-link {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  color: var(--jx-ink);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 10px;
+  padding-inline: 8px;
+}
+.jx-drawer-link:hover {
+  background: var(--jx-bg-soft);
+}
+.jx-drawer-link-sm {
+  font-size: 14px;
+  color: var(--jx-muted);
+  min-height: 44px;
+}
+.jx-drawer-rule {
+  border: 0;
+  border-top: 1px solid var(--jx-line);
+  margin: 10px 0;
+}
+
+/* ================================================================ footer === */
+
+.jx-footer {
+  background: var(--jx-deep);
+  color: var(--jx-on-deep);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.jx-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  color: rgba(242, 241, 234, 0.85);
+  text-decoration: none;
+}
+.jx-footer a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+.jx-footer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-block: 34px;
+  border-bottom: 1px solid rgba(242, 241, 234, 0.14);
+}
+.jx-footer-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 32px;
+  padding-block: 40px 30px;
+}
+.jx-footer-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(242, 241, 234, 0.72);
+  margin-bottom: 14px;
+}
+.jx-footer input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid rgba(242, 241, 234, 0.3);
+  background: rgba(242, 241, 234, 0.08);
+  border-radius: 999px;
+  padding: 12px 18px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--jx-on-deep);
+  outline: none;
+}
+.jx-footer input::placeholder {
+  color: rgba(242, 241, 234, 0.66);
+}
+
+/* ============================================================ hit areas === */
+
+/*
+ * WCAG 2.2 AA (2.5.8) sets a 24x24 CSS-pixel minimum for pointer targets.
+ * Breadcrumbs and the short social links are the two places the design's
+ * 12-13px inline text falls under it, so they get a floor here rather than
+ * each page restating it.
+ */
+.jx nav[aria-label='Breadcrumb'] a,
+.jx nav[aria-label='Social'] a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  min-width: 24px;
+  justify-content: center;
+}
+
+/* ------------------------------------------------------- product cards --- */
+
+/*
+ * Card artwork panel. Height is responsive because the store grid is two-up on
+ * phones — a fixed 190px panel next to a ~170px-wide card looks stretched.
+ */
+.jx-card-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  background: var(--jx-bg-soft);
+  border-bottom: 1px solid var(--jx-line);
+}
+.jx-card-art > svg,
+.jx-card-art > img {
+  height: 132px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+@media (min-width: 620px) {
+  .jx-card-art {
+    height: 190px;
+  }
+  .jx-card-art > svg,
+  .jx-card-art > img {
+    height: 168px;
+  }
+}
+
+/* ------------------------------------------------------------- checkout --- */
+
+.jx-checkout {
+  width: 100%;
+  max-width: 720px;
+  box-sizing: border-box;
+  overflow-x: clip;
+}
+
+.jx-checkout .jx-input,
+.jx-checkout .jx-btn,
+.jx-checkout .jx-address-autocomplete {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.jx-checkout form,
+.jx-checkout section,
+.jx-checkout fieldset {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Google Places dropdown — keep above cards; avoid clipping on mobile */
+.pac-container {
+  z-index: 10000 !important;
+  border-radius: var(--jx-r-md, 12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-family: inherit;
+  pointer-events: auto;
+}
+
+@media (max-width: 640px) {
+  .jx-checkout {
+    padding-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
+  }
+
+  .jx-checkout .jx-display {
+    font-size: 26px !important;
+    word-break: break-word;
+  }
+
+  .pac-container {
+    max-width: calc(100vw - 24px) !important;
+  }
+}

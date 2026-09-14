@@ -1,0 +1,367 @@
+/*
+ * Layout + responsive behaviour for the catalogue screens.
+ *
+ * Lives in a CSS module rather than jx.css because none of it is a reusable
+ * primitive, and because the media queries belong in CSS (the store pages are
+ * Server Components — there is no viewport to branch on at render time).
+ */
+
+/* ------------------------------------------------------------- catalogue -- */
+
+.layout {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+
+.results {
+  min-width: 0; /* lets the grid shrink instead of overflowing at 360px */
+}
+
+.grid {
+  display: grid;
+  /* Two-up on phones: at 390px the 212px minimum collapses to a single column,
+     which turns 51 products into a ~21,000px scroll. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 620px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
+    gap: 14px;
+  }
+}
+
+/* -------------------------------------------------------- filter surface -- */
+
+/*
+ * Mobile: a bottom sheet. Desktop: a plain sidebar column.
+ *
+ * Closed state uses visibility (not display) so the slide transition runs and
+ * so nothing inside the sheet is focusable while it is hidden.
+ */
+.panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  max-height: 84vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--jx-surface);
+  border-top: 1px solid var(--jx-line);
+  border-radius: var(--jx-r-xl) var(--jx-r-xl) 0 0;
+  box-shadow: var(--jx-shadow-lg);
+  padding: 16px var(--jx-gutter) calc(20px + env(safe-area-inset-bottom));
+  transform: translateY(101%);
+  visibility: hidden;
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.6, 0.2, 1),
+    visibility 0.28s;
+}
+
+.panel[data-open='true'] {
+  transform: none;
+  visibility: visible;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  background: rgba(28, 34, 27, 0.45);
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.panelTitle {
+  font-size: 20px;
+  margin: 0;
+}
+
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--jx-ink);
+  cursor: pointer;
+}
+.closeBtn:hover {
+  background: var(--jx-bg-soft);
+}
+
+.toggle {
+  display: inline-flex;
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 234px minmax(0, 1fr);
+    gap: 32px;
+  }
+  .panel {
+    position: sticky;
+    top: calc(var(--jx-chrome-h) + 16px);
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 1;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+    visibility: visible;
+  }
+  .scrim,
+  .closeBtn,
+  .toggle {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------- facets ----- */
+
+.group {
+  border: 0;
+  margin: 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--jx-line);
+}
+.group:first-of-type {
+  border-top: 0;
+  padding-top: 8px;
+}
+
+.groupTitle {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jx-muted);
+  margin: 0 0 10px;
+}
+
+.options {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Pills, per the design language. Each is a link so a filtered view is a real,
+   shareable URL and the back button behaves. */
+.option,
+.optionOff {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--jx-line-strong);
+  background: var(--jx-surface);
+  color: var(--jx-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+}
+/* 44px effective target without a 44px-tall pill (WCAG 2.5.8 allows spacing). */
+.options {
+  padding-block: 2px;
+}
+.option:hover {
+  border-color: var(--jx-brand);
+  color: var(--jx-brand);
+}
+.option[aria-current='true'] {
+  background: var(--jx-brand);
+  border-color: var(--jx-brand);
+  color: var(--jx-on-deep);
+  font-weight: 600;
+}
+.optionOff {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.count {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+/* --------------------------------------------------------------- chips ---- */
+
+.chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 10px 0 13px;
+  border-radius: 999px;
+  border: 1px solid var(--jx-line-strong);
+  background: var(--jx-bg-soft);
+  color: var(--jx-ink);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.chip:hover {
+  border-color: var(--jx-brand);
+  color: var(--jx-brand);
+}
+.chipX {
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.clearAll {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--jx-brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+}
+
+/* ------------------------------------------------------ supply pricing ---- */
+
+.priceCols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 10px;
+}
+
+.priceCell {
+  display: block;
+  padding: 13px 14px 14px;
+  border: 1px solid var(--jx-line);
+  border-radius: var(--jx-r-sm);
+  background: var(--jx-surface);
+  text-decoration: none;
+  color: inherit;
+}
+.priceCell:hover {
+  border-color: var(--jx-brand);
+}
+.priceCell[aria-current='true'] {
+  border-color: var(--jx-brand);
+  box-shadow: inset 0 0 0 1px var(--jx-brand);
+}
+
+/* --------------------------------------------------------- detail page ---- */
+
+.detail {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .detail {
+    grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
+    gap: 44px;
+  }
+  .artwork {
+    position: sticky;
+    top: calc(var(--jx-chrome-h) + 16px);
+  }
+}
+
+.artwork {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 28px;
+  background: var(--jx-bg-soft);
+}
+
+/* Supply / dose option rows on the detail page. */
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.optionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  height: 100%;
+  min-height: 44px;
+  padding: 12px 14px 13px;
+  border: 1px solid var(--jx-line-strong);
+  border-radius: var(--jx-r-sm);
+  background: var(--jx-surface);
+  color: var(--jx-ink);
+  text-decoration: none;
+}
+.optionCard:hover {
+  border-color: var(--jx-brand);
+}
+.optionCard[aria-current='page'] {
+  border-color: var(--jx-brand);
+  background: var(--jx-bg-soft);
+  box-shadow: inset 0 0 0 1px var(--jx-brand);
+  cursor: default;
+}
+
+.save {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4c6b3f;
+}
+
+/* ------------------------------------------------------------ skeletons --- */
+
+.skelCard {
+  border-radius: var(--jx-r-md);
+  border: 1px solid var(--jx-line);
+  overflow: hidden;
+  background: var(--jx-surface);
+}
+.skelArt {
+  height: 190px;
+}
+.skelLine {
+  height: 12px;
+  border-radius: 6px;
+  margin: 14px 15px 0;
+}
