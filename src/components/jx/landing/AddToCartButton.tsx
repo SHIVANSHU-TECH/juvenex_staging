@@ -1,17 +1,14 @@
 'use client'
 
 import type { CSSProperties } from 'react'
-import { useJxStore, type BagLine } from '../JxStore'
+import type { BagLine } from '../JxStore'
+import { useJxStore } from '../JxStore'
 import { CheckIcon } from '../icons'
+import { useAuthGatedAdd } from '../store/useAuthGatedAdd'
 
 /**
  * The design's "Add to Cart" pill, as used by the recommendation rail and the
- * featured banner.
- *
- * A client island rather than a client section: both callers are otherwise
- * server-rendered, and the only thing that needs the browser is the bag.
- * The bag holds at most one unit per product (upstream `Create_Order` has no
- * quantity field), so a line already in the bag disables rather than stacks.
+ * featured banner. Guests must sign in first (same as PDP Add to bag).
  */
 export function AddToCartButton({
   line,
@@ -23,15 +20,16 @@ export function AddToCartButton({
   block?: boolean
   style?: CSSProperties
 }) {
-  const { add, has, hydrated } = useJxStore()
+  const { has, hydrated } = useJxStore()
+  const { addOrSignIn, authLoading } = useAuthGatedAdd()
   const inBag = hydrated && has(line.id)
 
   return (
     <button
       type="button"
       className={`jx-btn ${inBag ? 'jx-btn-ghost' : 'jx-btn-primary'}`}
-      onClick={() => add(line)}
-      disabled={inBag}
+      onClick={() => addOrSignIn(line)}
+      disabled={inBag || !hydrated || authLoading}
       style={{
         fontSize: block ? 13 : 14,
         width: block ? '100%' : undefined,
@@ -46,8 +44,6 @@ export function AddToCartButton({
       ) : (
         'Add to Cart'
       )}
-      {/* Several of these sit on one page; name the product for screen
-          readers without changing the design's label. */}
       <span className="jx-sr"> — {line.title}</span>
     </button>
   )

@@ -132,10 +132,22 @@ function RegisterContent() {
     return () => { cancelled = true; };
   }, [referralCode]);
 
+  // Honor `?next=` (e.g. store PDP after Add to bag) — same open-redirect guard as login.
+  const postAuthDestination = () => {
+    try {
+      const next = searchParams.get('next') ?? '';
+      if (next.startsWith('/') && !next.startsWith('//')) return next;
+    } catch {
+      /* fall through */
+    }
+    return '/dashboard';
+  };
+
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      router.push('/dashboard');
+      router.push(postAuthDestination());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, isAuthenticated, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,12 +206,14 @@ function RegisterContent() {
       // Free signups (web only) go straight to the dashboard. NATIVE never gets
       // the trial param — the IAP 7-day trial (ASC introductory offer) isn't
       // configured, so the native checkout must show a truthful subscribe flow.
+      // If the user came from store Add-to-bag (`?next=`), resume that path after
+      // membership checkout is not wired yet — still require membership pay first.
       const trialParam = trialEnabled && !native ? '&trial=1' : '';
       router.push(
         `/checkout/membership?plan=${encodeURIComponent(tier)}${trialParam}`
       );
     } else {
-      router.push('/dashboard');
+      router.push(postAuthDestination());
     }
   };
 
@@ -619,7 +633,13 @@ function RegisterContent() {
             <p className="text-[var(--text-muted)]">
               Already have an account?{' '}
               <Link
-                href="/login"
+                href={(() => {
+                  const next = searchParams.get('next') ?? '';
+                  if (next.startsWith('/') && !next.startsWith('//')) {
+                    return `/login?next=${encodeURIComponent(next)}`;
+                  }
+                  return '/login';
+                })()}
                 className="text-[var(--accent-strong)] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-strong)] focus-visible:ring-offset-2 rounded"
               >
                 Sign in

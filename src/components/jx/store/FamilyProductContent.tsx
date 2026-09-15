@@ -3,6 +3,7 @@
 /**
  * KoverX-derived informational sections on Juvenex family PDPs.
  * Uses Juvenex tokens/classes only — no KoverX styling.
+ * List items use 1, 2, 3 ordering for clearer scanning.
  */
 import { useId, useState } from 'react'
 import type { StorefrontProductContent } from '@/lib/jx/storefront-product-content'
@@ -33,10 +34,10 @@ export function FamilyProductContent({ content }: { content: StorefrontProductCo
             </p>
           ) : null}
           {content.bullets?.length ? (
-            <ul
+            <ol
               style={{
                 margin: '14px 0 0',
-                paddingLeft: 18,
+                paddingLeft: 22,
                 color: 'var(--jx-body)',
                 lineHeight: 1.55,
                 fontSize: 14.5,
@@ -47,7 +48,7 @@ export function FamilyProductContent({ content }: { content: StorefrontProductCo
               {content.bullets.map((b) => (
                 <li key={b}>{b}</li>
               ))}
-            </ul>
+            </ol>
           ) : null}
         </section>
       ) : null}
@@ -60,10 +61,10 @@ export function FamilyProductContent({ content }: { content: StorefrontProductCo
           <h2 id="jx-includes-h" className="jx-display" style={{ fontSize: 22, margin: '0 0 12px' }}>
             Your kit
           </h2>
-          <ul
+          <ol
             style={{
               margin: 0,
-              paddingLeft: 18,
+              paddingLeft: 22,
               color: 'var(--jx-body)',
               lineHeight: 1.55,
               fontSize: 14.5,
@@ -74,7 +75,7 @@ export function FamilyProductContent({ content }: { content: StorefrontProductCo
             {content.includes.map((item) => (
               <li key={item}>{item}</li>
             ))}
-          </ul>
+          </ol>
         </section>
       ) : null}
 
@@ -86,7 +87,7 @@ export function FamilyProductContent({ content }: { content: StorefrontProductCo
           <h2 id="jx-timeline-h" className="jx-display" style={{ fontSize: 22, margin: '0 0 14px' }}>
             Timeline
           </h2>
-          <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 12 }}>
+          <ol style={{ listStyle: 'decimal', margin: 0, paddingLeft: 22, display: 'grid', gap: 12 }}>
             {content.timeline.map((item) => (
               <li
                 key={`${item.label}-${item.text}`}
@@ -115,22 +116,21 @@ export function FamilyProductContent({ content }: { content: StorefrontProductCo
           <h2 id="jx-side-h" className="jx-display" style={{ fontSize: 22, margin: '0 0 12px' }}>
             Possible side effects
           </h2>
-          <ul
+          <ol
             style={{
               margin: 0,
-              paddingLeft: 18,
+              paddingLeft: 22,
               color: 'var(--jx-body)',
               lineHeight: 1.55,
               fontSize: 14.5,
               display: 'grid',
               gap: 6,
-              columns: 'auto',
             }}
           >
             {content.sideEffects.map((s) => (
               <li key={s}>{s}</li>
             ))}
-          </ul>
+          </ol>
           {content.storage ? (
             <p style={{ margin: '14px 0 0', fontSize: 13.5, color: 'var(--jx-muted)' }}>
               Storage: {content.storage}
@@ -197,7 +197,9 @@ function ProductFaq({ faqs }: { faqs: NonNullable<StorefrontProductContent['faq'
                   gap: 12,
                 }}
               >
-                <span>{item.q}</span>
+                <span>
+                  {index + 1}. {item.q}
+                </span>
                 <span aria-hidden="true" style={{ color: 'var(--jx-muted)' }}>
                   {isOpen ? '−' : '+'}
                 </span>

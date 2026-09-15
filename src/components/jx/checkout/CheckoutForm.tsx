@@ -48,6 +48,7 @@ import { formatUsd } from '@/lib/jx/catalog'
 import { LockIcon, SpinnerIcon } from '@/components/jx/icons'
 import { BagLineRow } from './BagLineRow'
 import { CartCouponControl } from './CartCouponControl'
+import { CommerceProgress } from './CommerceProgress'
 import { DummyCardCheckout, useDummyCardCheckout } from './DummyCardCheckout'
 import { FormField } from './FormField'
 import { GoogleAddressAutocomplete } from './GoogleAddressAutocomplete'
@@ -165,6 +166,16 @@ function validateFields(
       if (key && !errors[key]) errors[key] = issue.message
     }
   }
+  const phoneDigits = fields.phone.replace(/\D/g, '')
+  if (phoneDigits.length > 0 && phoneDigits.length !== 10) {
+    errors.phone = 'Enter a 10-digit phone number'
+  }
+  if (fields.zipCode.replace(/\D/g, '').length > 6) {
+    errors.zipCode = 'ZIP can be at most 6 digits'
+  }
+  if (fields.billingSameAsShipping === 'NO' && fields.billingZipCode.replace(/\D/g, '').length > 6) {
+    errors.billingZipCode = 'ZIP can be at most 6 digits'
+  }
   return errors
 }
 
@@ -221,7 +232,7 @@ export function CheckoutForm() {
       ...f,
       firstName: f.firstName || vipPrefill?.firstName || first || '',
       lastName: f.lastName || vipPrefill?.lastName || rest.join(' '),
-      phone: f.phone || vipPrefill?.phone || user?.phone || '',
+      phone: f.phone || (vipPrefill?.phone || user?.phone || '').replace(/\D/g, '').slice(0, 10),
     }))
   }, [user])
 
@@ -361,6 +372,7 @@ export function CheckoutForm() {
 
   const summary = (
     <>
+      <CommerceProgress current="checkout" />
       <h1 className="jx-display" style={{ fontSize: 32, margin: 0 }}>
         Checkout
       </h1>
@@ -764,12 +776,20 @@ function CheckoutPaymentForm({
             className="jx-input"
             value={email}
             readOnly
+            disabled
+            tabIndex={-1}
             autoComplete="email"
+            aria-readonly="true"
             aria-describedby="jx-email-hint"
-            style={{ background: 'var(--jx-bg-soft)', color: 'var(--jx-muted)' }}
+            style={{
+              background: 'var(--jx-bg-soft)',
+              color: 'var(--jx-muted)',
+              cursor: 'not-allowed',
+              opacity: 1,
+            }}
           />
           <p id="jx-email-hint" style={{ margin: 0, fontSize: 12, color: 'var(--jx-muted)' }}>
-            Orders are placed under your signed-in account email.
+            Confirmed from your signed-in account — this email cannot be changed here.
           </p>
         </div>
         <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
@@ -792,11 +812,13 @@ function CheckoutPaymentForm({
           <FormField
             label="Phone"
             value={fields.phone}
-            onChange={(v) => setField('phone', v)}
+            onChange={(v) => setField('phone', v.replace(/\D/g, '').slice(0, 10))}
             error={errors.phone}
             type="tel"
-            inputMode="tel"
+            inputMode="numeric"
             autoComplete="tel"
+            maxLength={10}
+            hint="10-digit US phone number"
             required
           />
         </div>
@@ -809,7 +831,7 @@ function CheckoutPaymentForm({
               if (parts.address) setField('address', parts.address)
               if (parts.city) setField('cityName', parts.city)
               if (parts.state) setField('stateName', parts.state)
-              if (parts.zip) setField('zipCode', parts.zip)
+              if (parts.zip) setField('zipCode', parts.zip.replace(/\D/g, '').slice(0, 6))
             }}
             error={errors.address}
             autoComplete="address-line1"
@@ -845,10 +867,12 @@ function CheckoutPaymentForm({
           <FormField
             label="ZIP / postal code"
             value={fields.zipCode}
-            onChange={(v) => setField('zipCode', v)}
+            onChange={(v) => setField('zipCode', v.replace(/\D/g, '').slice(0, 6))}
             error={errors.zipCode}
             autoComplete="postal-code"
             inputMode="numeric"
+            maxLength={6}
+            hint="Max 6 digits"
             required
           />
         </div>
@@ -889,7 +913,7 @@ function CheckoutPaymentForm({
                 if (parts.address) setField('billingAddress', parts.address)
                 if (parts.city) setField('billingCityName', parts.city)
                 if (parts.state) setField('billingStateName', parts.state)
-                if (parts.zip) setField('billingZipCode', parts.zip)
+                if (parts.zip) setField('billingZipCode', parts.zip.replace(/\D/g, '').slice(0, 6))
               }}
               error={errors.billingAddress}
               autoComplete="billing address-line1"
@@ -915,10 +939,11 @@ function CheckoutPaymentForm({
             <FormField
               label="Billing ZIP"
               value={fields.billingZipCode}
-              onChange={(v) => setField('billingZipCode', v)}
+              onChange={(v) => setField('billingZipCode', v.replace(/\D/g, '').slice(0, 6))}
               error={errors.billingZipCode}
               autoComplete="billing postal-code"
               inputMode="numeric"
+              maxLength={6}
               required
             />
           </div>

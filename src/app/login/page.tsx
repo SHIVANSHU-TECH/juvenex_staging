@@ -37,6 +37,19 @@ export default function LoginPage() {
     return '/dashboard';
   };
 
+  const [registerHref, setRegisterHref] = useState('/register');
+
+  useEffect(() => {
+    try {
+      const next = new URLSearchParams(window.location.search).get('next') ?? '';
+      if (next.startsWith('/') && !next.startsWith('//')) {
+        setRegisterHref(`/register?next=${encodeURIComponent(next)}`);
+      }
+    } catch {
+      /* keep /register */
+    }
+  }, []);
+
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       router.push(postLoginDestination());
@@ -197,7 +210,7 @@ export default function LoginPage() {
             <p className="text-[var(--text-muted)]">
               Don&apos;t have an account?{' '}
               <Link
-                href="/register"
+                href={registerHref}
                 className="text-[var(--accent-strong)] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-strong)] focus-visible:ring-offset-2 rounded"
               >
                 Sign up

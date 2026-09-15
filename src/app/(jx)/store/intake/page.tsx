@@ -12,9 +12,14 @@
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { fetchPendingForms, hasIntakeCta, intakeFormUrl, INTAKE_ENABLED } from '@/lib/jx/intake'
+import {
+  clearIntakeReturnTo,
+  readIntakeReturnTo,
+  saveIntakeReturnTo,
+} from '@/lib/jx/pending-add'
 
 /** Match HappyLabs FormModal URL construction. */
 function buildFormUrl(
@@ -46,6 +51,7 @@ function buildFormUrl(
 
 function IntakeEmbedInner() {
   const params = useSearchParams()
+  const router = useRouter()
   const orderId = (params.get('order_id') || '').trim()
   const { user } = useAuth()
 
@@ -59,6 +65,39 @@ function IntakeEmbedInner() {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Remember where the user came from if not already set (e.g. deep link).
+  useEffect(() => {
+    if (readIntakeReturnTo()) return
+    try {
+      const ref = document.referrer
+      if (!ref) return
+      const url = new URL(ref)
+      if (url.origin !== window.location.origin) return
+      const base = process.env.NEXT_PUBLIC_BASE_PATH || ''
+      let path = `${url.pathname}${url.search}`
+      if (base && path.startsWith(base)) {
+        path = path.slice(base.length) || '/'
+      }
+      if (path.startsWith('/') && !path.startsWith('//') && !path.includes('/store/intake')) {
+        saveIntakeReturnTo(path)
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  const doneHref = () => {
+    const saved = readIntakeReturnTo()
+    clearIntakeReturnTo()
+    return saved || (orderId
+      ? `/store/account/orders/${encodeURIComponent(orderId)}`
+      : '/store/account/orders')
+  }
+
+  const goDone = () => {
+    router.push(doneHref())
+  }
 
   useEffect(() => {
     if (!orderId) {
@@ -112,7 +151,7 @@ function IntakeEmbedInner() {
     })
   }, [rawFormUrl, orderId, user?.email, user?.name, user?.phone])
 
-  const backHref = orderId
+  const fallbackBackHref = orderId
     ? `/store/account/orders/${encodeURIComponent(orderId)}`
     : '/store/account/orders'
 
@@ -138,8 +177,8 @@ function IntakeEmbedInner() {
           Intake unavailable
         </h1>
         <p style={{ color: 'var(--jx-muted)', marginBottom: 20 }}>{error || 'Form could not be loaded.'}</p>
-        <Link href={backHref} className="jx-btn jx-btn-primary">
-          Back to order
+        <Link href={readIntakeReturnTo() || fallbackBackHref} className="jx-btn jx-btn-primary" onClick={() => clearIntakeReturnTo()}>
+          Back
         </Link>
       </div>
     )
@@ -197,9 +236,9 @@ function IntakeEmbedInner() {
               Order #{orderId} · Health assessment form
             </p>
           </div>
-          <Link href={backHref} className="jx-btn jx-btn-ghost">
+          <button type="button" onClick={goDone} className="jx-btn jx-btn-ghost">
             Done
-          </Link>
+          </button>
         </header>
 
         <div style={{ position: 'relative', flex: 1, minHeight: 0 }}>

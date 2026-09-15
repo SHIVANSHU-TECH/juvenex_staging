@@ -1,15 +1,14 @@
 'use client'
 
 /**
- * The bag. Kept deliberately simple — line art, remove, subtotal, and the
- * separate-orders notice — because the real complexity (per-line coupons,
- * shipping/billing/card capture, sequential order submission) lives on
- * /store/checkout. See JxStore.tsx for why the bag holds at most one unit of
- * each product: upstream `Create_Order` has no quantity field.
+ * The bag. Kept deliberately simple — line art, remove, subtotal — because the
+ * real complexity lives on /store/checkout. One unit per product (Create_Order
+ * has no quantity field).
  */
 import Link from 'next/link'
 import { useJxStore } from '@/components/jx/JxStore'
 import { BagLineRow } from '@/components/jx/checkout/BagLineRow'
+import { CommerceProgress } from '@/components/jx/checkout/CommerceProgress'
 import { LockIcon } from '@/components/jx/icons'
 import { formatUsd } from '@/lib/jx/catalog'
 
@@ -18,6 +17,7 @@ export default function CartPage() {
 
   return (
     <div className="jx-shell" style={{ paddingBlock: 40, maxWidth: 760, marginInline: 'auto' }}>
+      <CommerceProgress current="bag" />
       <h1 className="jx-display" style={{ fontSize: 32, marginBottom: 24 }}>
         Your Bag
       </h1>
@@ -46,9 +46,9 @@ export default function CartPage() {
           >
             <LockIcon size={18} />
             <span>
-              Each item is placed as a separate order and charged separately — checking out with{' '}
-              {lines.length} {lines.length === 1 ? 'item' : 'items'} means {lines.length}{' '}
-              {lines.length === 1 ? 'charge' : 'separate charges'} to your card, one per item.
+              Your card is charged once for the whole bag. Each item is still placed as its own
+              order for prescription review — if any can&rsquo;t be placed, the payment is released
+              and you are not charged.
             </span>
           </div>
 

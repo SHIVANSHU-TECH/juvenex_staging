@@ -3,9 +3,7 @@ import Link from 'next/link'
 import { Reveal } from './Reveal'
 
 /**
- * Full-width quiz band — design lines 475–487, verbatim. The design's
- * assets/jx-strip-couple.png was lost with the source project; any photograph
- * works behind the 84%-opaque deep-green scrim it was always sitting under.
+ * Full-width CTA band — get started / shop / VIP (honest destinations).
  */
 export function QuizCta() {
   return (
@@ -27,12 +25,20 @@ export function QuizCta() {
               Personalized health. Elevated results.
             </h2>
             <p>
-              Take our quick quiz and get a personalized plan built around your goals, data, and
-              lifestyle.
+              Create your account, shop treatments, or start a VIP consult — then complete clinical
+              intake after checkout when required.
             </p>
-            <Link href="/register" className="jx-btn jx-btn-onDark" style={{ fontSize: 15 }}>
-              Take Your Health Quiz →
-            </Link>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 8 }}>
+              <Link href="/register" className="jx-btn jx-btn-onDark" style={{ fontSize: 15 }}>
+                Get started →
+              </Link>
+              <Link href="/store" className="jx-btn jx-btn-ghost" style={{ fontSize: 15, color: '#fff', borderColor: 'rgba(255,255,255,.45)' }}>
+                Shop treatments
+              </Link>
+              <Link href="/telehealth" className="jx-btn jx-btn-ghost" style={{ fontSize: 15, color: '#fff', borderColor: 'rgba(255,255,255,.45)' }}>
+                Start VIP consult
+              </Link>
+            </div>
             <p
               style={{
                 margin: '18px 0 0',
@@ -42,7 +48,7 @@ export function QuizCta() {
                 color: 'rgba(242,241,234,.65)',
               }}
             >
-              3–5 MIN · PERSONALIZED PLAN · 100% CONFIDENTIAL
+              ACCOUNT TO ORDER · PERSONALIZED PLAN · 100% CONFIDENTIAL
             </p>
           </div>
         </div>

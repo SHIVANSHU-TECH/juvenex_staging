@@ -205,7 +205,8 @@ export default function VipTelehealthExperience() {
       })
 
       writeVipSession({ ...session, step: 'review' })
-      router.push('/store/checkout')
+      // Biomax-clean path: bag first, then checkout from the cart page.
+      router.push('/store/cart')
     } catch {
       setCheckoutError('Could not start checkout. Please try again.')
       setSubmitting(false)
@@ -430,7 +431,8 @@ export default function VipTelehealthExperience() {
             <section>
               <h2 className="text-2xl font-semibold tracking-tight">Review</h2>
               <p className="mt-2 text-sm text-[#4A5347]">
-                Confirm your product, then continue to checkout.
+                Confirm your product, then continue to your bag and checkout. Clinical intake
+                happens after payment when required.
               </p>
 
               <div className="mt-5 space-y-3">
@@ -466,7 +468,7 @@ export default function VipTelehealthExperience() {
                 onClick={() => continueToCheckout()}
                 className="mt-6 flex min-h-12 w-full items-center justify-center rounded-full bg-[var(--accent-strong)] text-sm font-bold text-white shadow-sm disabled:opacity-60"
               >
-                {submitting ? 'Preparing checkout…' : 'Continue to checkout'}
+                {submitting ? 'Preparing bag…' : 'Continue to bag'}
               </button>
               <p className="mt-3 text-center text-xs leading-5 text-[var(--text-muted)]">
                 Checkout uses the existing Juvenex store payment flow. After

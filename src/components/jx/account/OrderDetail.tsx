@@ -6,6 +6,7 @@ import { juvenexPortalApi, type PortalApiResponse } from '@/lib/api/juvenex-port
 import { SpinnerIcon } from '@/components/jx/icons'
 import { asArray, asRecord, formatDate, friendlyError, hasSession, requireSuccess, statusTone, text, type JsonRecord } from './portal-utils'
 import { fetchPendingForms, hasIntakeCta, INTAKE_ENABLED } from '@/lib/jx/intake'
+import { saveIntakeReturnTo } from '@/lib/jx/pending-add'
 import type { PendingForm } from '@/lib/juvenex/schemas'
 import s from './portal.module.css'
 
@@ -111,6 +112,9 @@ function IntakePanel({ form }: { form?: PendingForm }) {
           <Link
             className="jx-btn jx-btn-primary"
             href={`/store/intake?order_id=${encodeURIComponent(form.order_id)}`}
+            onClick={() =>
+              saveIntakeReturnTo(`/store/account/orders/${encodeURIComponent(form.order_id)}`)
+            }
           >
             {form.action === 'check_in' ? 'Complete check-in' : 'Complete intake'}
           </Link>

@@ -13,9 +13,11 @@ import type {
   StorefrontProduct,
 } from '@/lib/jx/storefront-catalog'
 import { FamilyProductContent } from './FamilyProductContent'
+import { useAuthGatedAdd } from './useAuthGatedAdd'
 
 export function FamilyDetailClient({ product }: { product: StorefrontProduct }) {
-  const { add, has, hydrated } = useJxStore()
+  const { has, hydrated } = useJxStore()
+  const { addOrSignIn, authLoading } = useAuthGatedAdd()
   const content = useMemo(() => getStorefrontProductContent(product.slug), [product.slug])
 
   const initialMed =
@@ -189,10 +191,10 @@ export function FamilyDetailClient({ product }: { product: StorefrontProduct }) 
           <button
             type="button"
             className={`jx-btn ${inBag ? 'jx-btn-ghost' : 'jx-btn-primary'}`}
-            disabled={!hydrated}
+            disabled={!hydrated || authLoading || inBag}
             onClick={() => {
               if (inBag) return
-              add({
+              addOrSignIn({
                 id: activePlan.productId,
                 title: product.name,
                 subtitle: [activeMed?.name, activePlan.label, activePlan.dosage]
@@ -212,16 +214,15 @@ export function FamilyDetailClient({ product }: { product: StorefrontProduct }) 
             )}
           </button>
           {inBag ? (
-            <>
-              <Link href="/store/cart" className="jx-btn jx-btn-ghost">
-                View bag
-              </Link>
-              <Link href="/store/checkout" className="jx-btn jx-btn-primary">
-                Checkout
-              </Link>
-            </>
+            <Link href="/store/cart" className="jx-btn jx-btn-primary">
+              Go to bag
+            </Link>
           ) : null}
         </div>
+        <p style={{ margin: '12px 0 0', fontSize: 12.5, color: 'var(--jx-muted)' }}>
+          Sign in is required to add items. After adding, you&rsquo;ll review your bag, then check
+          out.
+        </p>
       </div>
 
       {content ? <FamilyProductContent content={content} /> : null}

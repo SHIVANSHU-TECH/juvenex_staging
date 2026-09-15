@@ -314,19 +314,21 @@ export function Hero({ videoA = null, videoB = null }: HeroProps) {
               Precision, sealed.
             </h2>
             <p className="jxl-hero__body">
-              Take the quick quiz and get a personalized plan built around your goals, data, and
-              lifestyle.
+              Create your account or shop treatments — personalized care built around your goals.
             </p>
             <div className="jxl-hero__actions">
               <Link href="/register" className="jx-btn jx-btn-primary">
-                Take Your Health Quiz →
+                Get started →
               </Link>
               <Link href="/store" className="jx-btn jx-btn-ghost">
-                Shop GLP-1
+                Shop treatments
+              </Link>
+              <Link href="/telehealth" className="jx-btn jx-btn-ghost">
+                Start VIP consult
               </Link>
             </div>
             <p className="jxl-hero__note">
-              3–5 min · Personalized plan · 100% confidential
+              Account required to order · Personalized plan · 100% confidential
             </p>
           </div>
         </div>

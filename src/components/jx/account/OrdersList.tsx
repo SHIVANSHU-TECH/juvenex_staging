@@ -6,6 +6,7 @@ import { juvenexPortalApi } from '@/lib/api/juvenex-portal'
 import { SpinnerIcon } from '@/components/jx/icons'
 import { asArray, formatDate, friendlyError, hasSession, requireSuccess, statusTone, text, type JsonRecord } from './portal-utils'
 import { fetchPendingForms, hasIntakeCta, INTAKE_ENABLED } from '@/lib/jx/intake'
+import { saveIntakeReturnTo } from '@/lib/jx/pending-add'
 import type { PendingForm } from '@/lib/juvenex/schemas'
 import s from './portal.module.css'
 
@@ -19,12 +20,6 @@ export function OrdersList() {
     setLoading(true); setError('')
     if (!hasSession()) { setError('Please sign in to view your Juvenex account.'); setLoading(false); return }
     try {
-      // Prefer the local mirror (migration 050) — it does not depend on the
-      // vendor being reachable. A miss here is expected and must never be
-      // fatal: customers who ordered before mirroring existed have no local
-      // rows, so both "empty" and "the local read failed outright" fall
-      // through to the authoritative vendor list. Do NOT drop the vendor call
-      // until those customers have been backfilled.
       let loaded: JsonRecord[] = []
       try {
         loaded = asArray(
@@ -45,10 +40,6 @@ export function OrdersList() {
 
   useEffect(() => { void load() }, [load])
 
-  // Intake is a SEPARATE, non-blocking lookup: WhiteLabelMD is the source of
-  // truth (locked decision 3) and we never persist completion locally (4).
-  // Held only for display, refreshed on every mount. It deliberately does not
-  // gate `loading` — orders must render even if intake is down or undeployed.
   useEffect(() => {
     if (!INTAKE_ENABLED) return
     let active = true
@@ -80,28 +71,39 @@ export function OrdersList() {
 }
 
 /**
- * Per-order intake state, rendered as a sibling of the card's own link rather
- * than inside it. Renders nothing for a completed form, a missing form, or an
- * actionable form with no URL — a badge that looks clickable but goes nowhere
- * is worse than no badge.
+ * Intake message + clear Complete intake button on the list (no need to open
+ * order detail). Saves return path so intake Done goes back here.
  */
 function IntakeRow({ form }: { form?: PendingForm }) {
   if (!form) return null
 
   if (hasIntakeCta(form)) {
-    return <div className={s.intakeRow}>
-      <Link className={s.intakeBadge} href={`/store/intake?order_id=${encodeURIComponent(form.order_id)}`}>
-        {form.action === 'check_in' ? 'Check-in required' : 'Intake required'}
-      </Link>
-      <span className={s.intakeNote}>Your prescribing doctor needs this to review your order.</span>
-    </div>
+    const href = `/store/intake?order_id=${encodeURIComponent(form.order_id)}`
+    const label = form.action === 'check_in' ? 'Complete check-in' : 'Complete intake'
+    return (
+      <div className={s.intakeRow}>
+        <span className={s.intakeNote} style={{ flex: '1 1 200px' }}>
+          Your prescribing doctor needs this to review your order.
+        </span>
+        <Link
+          className="jx-btn jx-btn-primary"
+          href={href}
+          style={{ fontSize: 13, padding: '8px 14px' }}
+          onClick={() => saveIntakeReturnTo('/store/account/orders')}
+        >
+          {label}
+        </Link>
+      </div>
+    )
   }
 
   if (form.action === 'pending') {
-    return <div className={s.intakeRow}>
-      <span className={s.intakeBadge} data-tone="info">Being prepared</span>
-      <span className={s.intakeNote}>Your intake form isn&rsquo;t ready yet. Check back shortly.</span>
-    </div>
+    return (
+      <div className={s.intakeRow}>
+        <span className={s.intakeBadge} data-tone="info">Being prepared</span>
+        <span className={s.intakeNote}>Your intake form isn&rsquo;t ready yet. Check back shortly.</span>
+      </div>
+    )
   }
 
   return null

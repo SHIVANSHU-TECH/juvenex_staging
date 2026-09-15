@@ -28,13 +28,13 @@ import {
 const UTILITY_LINKS = [
   { label: 'For Clinics & Providers', href: '/white-label' },
   { label: 'About Us', href: '/landing' },
-  { label: 'Help Center', href: '/messages' },
+  { label: 'Messages / Care', href: '/messages' },
 ]
 
 const NAV_LINKS = [
   { label: 'Shop All', href: '/store' },
-  { label: 'Semaglutide', href: '/store?molecule=Semaglutide' },
-  { label: 'Tirzepatide', href: '/store?molecule=Tirzepatide' },
+  { label: 'Semaglutide', href: '/store/p/semaglutide' },
+  { label: 'Tirzepatide', href: '/store/p/tirzepatide' },
   { label: 'Programs', href: '/store?kind=program' },
   { label: 'Health Programs', href: '/#membership' },
   { label: 'Telehealth', href: '/telehealth' },
@@ -161,11 +161,11 @@ export function JxChrome() {
           <div className="jx-header-actions">
             <Link href="/store/account/orders" className="jx-action jx-hide-sm">
               <UserIcon size={17} />
-              <span>Account</span>
+              <span>Member portal</span>
             </Link>
             <Link href="/store" className="jx-action jx-hide-sm">
               <HeartIcon size={17} />
-              <span>Favorites</span>
+              <span>Shop</span>
             </Link>
             <Link href="/store/cart" className="jx-action">
               <BagIcon size={17} />
@@ -188,7 +188,7 @@ export function JxChrome() {
             </Link>
           ))}
           <Link href="/register" className="jx-nav-cta">
-            Take the Quiz
+            Get started
           </Link>
         </nav>
       </header>
@@ -230,7 +230,7 @@ export function JxChrome() {
               </Link>
             ))}
             <Link href="/register" className="jx-btn jx-btn-primary" style={{ marginTop: 14 }}>
-              Take the Quiz
+              Get started
             </Link>
           </div>
         </div>

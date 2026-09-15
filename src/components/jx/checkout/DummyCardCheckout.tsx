@@ -226,11 +226,12 @@ export function DummyCardCheckout({
     const nextErrors: Partial<Record<keyof CheckoutFields, string>> = {}
     if (!fields.firstName.trim()) nextErrors.firstName = 'Required'
     if (!fields.lastName.trim()) nextErrors.lastName = 'Required'
-    if (fields.phone.trim().length < 7) nextErrors.phone = 'Enter a valid phone'
+    if (fields.phone.replace(/\D/g, '').length !== 10) nextErrors.phone = 'Enter a 10-digit phone number'
     if (!fields.address.trim()) nextErrors.address = 'Required'
     if (!fields.cityName.trim()) nextErrors.cityName = 'Required'
     if (!fields.stateName.trim()) nextErrors.stateName = 'Required'
     if (!fields.zipCode.trim()) nextErrors.zipCode = 'Required'
+    else if (fields.zipCode.replace(/\D/g, '').length > 6) nextErrors.zipCode = 'ZIP can be at most 6 digits'
     if (fields.billingSameAsShipping === 'NO') {
       if (!fields.billingAddress.trim()) nextErrors.billingAddress = 'Required'
       if (!fields.billingCityName.trim()) nextErrors.billingCityName = 'Required'
@@ -459,9 +460,21 @@ export function DummyCardCheckout({
             className="jx-input"
             value={email}
             readOnly
+            disabled
+            tabIndex={-1}
             autoComplete="email"
-            style={{ background: 'var(--jx-bg-soft)', color: 'var(--jx-muted)' }}
+            aria-readonly="true"
+            aria-describedby="jx-email-hint-dummy"
+            style={{
+              background: 'var(--jx-bg-soft)',
+              color: 'var(--jx-muted)',
+              cursor: 'not-allowed',
+              opacity: 1,
+            }}
           />
+          <p id="jx-email-hint-dummy" style={{ margin: 0, fontSize: 12, color: 'var(--jx-muted)' }}>
+            Confirmed from your signed-in account — this email cannot be changed here.
+          </p>
         </div>
         <div
           style={{
@@ -489,10 +502,13 @@ export function DummyCardCheckout({
           <FormField
             label="Phone"
             value={fields.phone}
-            onChange={(v) => setField('phone', v)}
+            onChange={(v) => setField('phone', v.replace(/\D/g, '').slice(0, 10))}
             error={errors.phone}
             type="tel"
+            inputMode="numeric"
             autoComplete="tel"
+            maxLength={10}
+            hint="10-digit US phone number"
             required
           />
         </div>
@@ -514,7 +530,7 @@ export function DummyCardCheckout({
                 address: parts.address || f.address,
                 cityName: parts.city || f.cityName,
                 stateName: parts.state || f.stateName,
-                zipCode: parts.zip || f.zipCode,
+                zipCode: (parts.zip || f.zipCode).replace(/\D/g, '').slice(0, 6),
               }))
               setErrors((e) => ({
                 ...e,
@@ -575,9 +591,12 @@ export function DummyCardCheckout({
           <FormField
             label="ZIP"
             value={fields.zipCode}
-            onChange={(v) => setField('zipCode', v)}
+            onChange={(v) => setField('zipCode', v.replace(/\D/g, '').slice(0, 6))}
             error={errors.zipCode}
             autoComplete="postal-code"
+            inputMode="numeric"
+            maxLength={6}
+            hint="Max 6 digits"
             required
           />
         </div>
@@ -614,7 +633,7 @@ export function DummyCardCheckout({
                   billingAddress: parts.address || f.billingAddress,
                   billingCityName: parts.city || f.billingCityName,
                   billingStateName: parts.state || f.billingStateName,
-                  billingZipCode: parts.zip || f.billingZipCode,
+                  billingZipCode: (parts.zip || f.billingZipCode).replace(/\D/g, '').slice(0, 6),
                 }))
                 setErrors((e) => ({
                   ...e,
@@ -656,8 +675,10 @@ export function DummyCardCheckout({
             <FormField
               label="Billing ZIP"
               value={fields.billingZipCode}
-              onChange={(v) => setField('billingZipCode', v)}
+              onChange={(v) => setField('billingZipCode', v.replace(/\D/g, '').slice(0, 6))}
               error={errors.billingZipCode}
+              inputMode="numeric"
+              maxLength={6}
               required
             />
           </div>

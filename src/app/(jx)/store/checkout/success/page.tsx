@@ -20,9 +20,11 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { CheckCircleIcon } from '@/components/jx/icons'
+import { CommerceProgress } from '@/components/jx/checkout/CommerceProgress'
 import { formatUsd } from '@/lib/jx/catalog'
 import { CHECKOUT_SUCCESS_KEY, type StoredCheckoutSuccess } from '@/components/jx/checkout/types'
 import { fetchPendingForms, hasIntakeCta, intakeFormUrl, INTAKE_ENABLED } from '@/lib/jx/intake'
+import { saveIntakeReturnTo } from '@/lib/jx/pending-add'
 import type { PendingForm } from '@/lib/juvenex/schemas'
 
 function readStoredResult(): StoredCheckoutSuccess | null {
@@ -110,6 +112,7 @@ function IntakeCta({ orderIds }: { orderIds: string[] }) {
                 <Link
                   className="jx-btn jx-btn-primary"
                   href={`/store/intake?order_id=${encodeURIComponent(form.order_id)}`}
+                  onClick={() => saveIntakeReturnTo('/store/checkout/success')}
                 >
                   {form.action === 'check_in' ? 'Complete check-in' : 'Complete intake'}
                 </Link>
@@ -170,6 +173,7 @@ export default function CheckoutSuccessPage() {
 
   return (
     <div className="jx-shell" style={{ paddingBlock: 48, maxWidth: 640, marginInline: 'auto' }}>
+      <CommerceProgress current="confirm" />
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
         <CheckCircleIcon size={40} style={{ color: 'var(--jx-brand)' }} />
         <h1 className="jx-display" style={{ fontSize: 30, margin: '12px 0 6px' }}>

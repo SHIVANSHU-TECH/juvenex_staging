@@ -1,20 +1,20 @@
 'use client'
 
-import Link from 'next/link'
 import { formatUsd, type JxProduct } from '@/lib/jx/catalog'
 import { CheckIcon } from '../icons'
 import { useJxStore } from '../JxStore'
+import { useAuthGatedAdd } from './useAuthGatedAdd'
+import Link from 'next/link'
 
 /**
- * Detail-page add-to-bag.
+ * Detail-page add-to-bag (partner API PDP).
  *
- * There is deliberately no quantity control: `Create_Order` upstream takes one
- * product id and has no quantity field, so the bag holds one unit per product
- * and checkout places one order per line. A stepper here would promise
- * something the pharmacy API cannot deliver.
+ * Guests must sign in first; after auth, pending add completes and routes to
+ * /store/cart. No quantity control — Create_Order has no qty field.
  */
 export function AddToBag({ product }: { product: JxProduct }) {
-  const { add, has, hydrated } = useJxStore()
+  const { has, hydrated } = useJxStore()
+  const { addOrSignIn, authLoading } = useAuthGatedAdd()
   const inBag = hydrated && has(product.id)
 
   return (
@@ -23,9 +23,9 @@ export function AddToBag({ product }: { product: JxProduct }) {
         type="button"
         className={`jx-btn ${inBag ? 'jx-btn-ghost' : 'jx-btn-primary'}`}
         style={{ minWidth: 220, flex: '1 1 220px' }}
-        disabled={inBag}
+        disabled={inBag || !hydrated || authLoading}
         onClick={() =>
-          add({
+          addOrSignIn({
             id: product.id,
             title: product.title,
             subtitle: product.subtitle,
@@ -44,8 +44,8 @@ export function AddToBag({ product }: { product: JxProduct }) {
       </button>
 
       {inBag ? (
-        <Link href="/store/cart" className="jx-btn jx-btn-ghost" style={{ flex: '0 1 auto' }}>
-          Review bag
+        <Link href="/store/cart" className="jx-btn jx-btn-primary" style={{ flex: '0 1 auto' }}>
+          Go to bag
         </Link>
       ) : null}
     </div>
