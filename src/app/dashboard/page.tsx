@@ -263,7 +263,7 @@ export default function DashboardPage() {
           {[
             { href: '/profile', icon: '&#x1F464;', label: 'Profile' },
             { href: '/telehealth', icon: '&#x1F4F9;', label: 'Consult' },
-            { href: '/intake', icon: '&#x1F4DD;', label: 'Intake' },
+            { href: '/store/account/doctor', icon: '&#x1F4AC;', label: 'Talk to Doctor' },
             { href: '/store/account/orders', icon: '&#x1F4E6;', label: 'Orders' },
           ].map((item) => (
             <Link key={item.href} href={item.href} className="bg-white rounded-xl p-3 text-center border border-[#E5EAE3] shadow-lg hover:border-[var(--accent)] hover:shadow-xl transition-all">

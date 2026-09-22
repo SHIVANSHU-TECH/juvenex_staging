@@ -10,6 +10,11 @@ const navItems = [
   { href: '/community', label: 'Community', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
   { href: '/telehealth', label: 'VIP', icon: 'M11.48 3.5a.56.56 0 011.04 0l2.13 4.32 4.77.69a.56.56 0 01.31.96l-3.45 3.36.82 4.75a.56.56 0 01-.82.59L12 15.9l-4.27 2.24a.56.56 0 01-.82-.59l.82-4.75-3.45-3.36a.56.56 0 01.31-.96l4.77-.69z' },
   { href: '/store/account/orders', label: 'Orders', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4' },
+  {
+    href: '/store/account/doctor',
+    label: 'Talk to Doctor',
+    icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
+  },
   { href: '/profile', label: 'Profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
 ];
 
@@ -87,7 +92,11 @@ export default function BottomNav() {
                   pathname.startsWith('/store/cart') ||
                   pathname.startsWith('/store/checkout') ||
                   /^\/store\/[^/]+$/.test(pathname)
-                : pathname.startsWith(item.href);
+                : item.href === '/store/account/orders'
+                  ? pathname.startsWith('/store/account/orders')
+                  : item.href === '/store/account/doctor'
+                    ? pathname.startsWith('/store/account/doctor')
+                    : pathname.startsWith(item.href);
           const showUnreadDot = item.href === '/profile' && unread > 0;
           return (
             <Link

@@ -90,7 +90,19 @@ export function OrderDetail({ orderId }: { orderId:string }) {
             <button className={s.danger} type="button" onClick={() => setCancelTarget(item)}>Cancel subscription</button>
           </div>) : <p style={{margin:0,color:'var(--jx-muted)',lineHeight:1.5}}>This order does not have an active subscription.</p>}
         </section>
-        <section className={`jx-tile-dark ${s.panel}`}><span className="jx-eyebrow" style={{color:'#d7ddcf'}}>Need help?</span><h2 className="jx-display" style={{margin:'8px 0',fontSize:25}}>Your care team is here</h2><p style={{margin:'0 0 16px',opacity:.82,lineHeight:1.5,fontSize:14}}>Use secure messages below for treatment or fulfillment questions.</p><a href="#care-messages" className="jx-btn jx-btn-onDark">Message care team</a></section>
+        <section className={`jx-tile-dark ${s.panel}`}>
+          <span className="jx-eyebrow" style={{ color: '#d7ddcf' }}>Need help?</span>
+          <h2 className="jx-display" style={{ margin: '8px 0', fontSize: 25 }}>Talk to Doctor</h2>
+          <p style={{ margin: '0 0 16px', opacity: 0.82, lineHeight: 1.5, fontSize: 14 }}>
+            Secure chat with your prescribing doctor about this order.
+          </p>
+          <Link
+            href={`/store/account/doctor/${encodeURIComponent(orderId)}`}
+            className="jx-btn jx-btn-onDark"
+          >
+            Talk to Doctor
+          </Link>
+        </section>
       </aside>
     </div>
     {cancelTarget ? <CancelDialog orderId={orderId} enrollment={cancelTarget} onClose={() => setCancelTarget(null)} onSuccess={() => { setCancelTarget(null); setNotice('Your subscription has been cancelled.'); void load() }} /> : null}
@@ -167,7 +179,7 @@ function Messages({orderId,initial}:{orderId:string;initial:JsonRecord[]}) {
   const [messages,setMessages]=useState(initial); const [textValue,setTextValue]=useState(''); const [file,setFile]=useState<File|null>(null); const [busy,setBusy]=useState(false); const [error,setError]=useState(''); const fileRef=useRef<HTMLInputElement>(null)
   async function refresh(){const response=await juvenexPortalApi.patientMessages(orderId); if(response.status!==0)setMessages(extractMessages(response))}
   async function submit(event:React.FormEvent){event.preventDefault();if(!textValue.trim()&&!file){setError('Write a message or attach a file.');return}if(file&&file.size>10*1024*1024){setError('Please choose a file smaller than 10 MB.');return}setBusy(true);setError('');try{requireSuccess(await juvenexPortalApi.sendPatientMessage({order_id:orderId,text:textValue.trim()||undefined,file:file||undefined}),'Message could not be sent.');setTextValue('');setFile(null);if(fileRef.current)fileRef.current.value='';await refresh()}catch(cause){setError(friendlyError(cause))}finally{setBusy(false)}}
-  return <section id="care-messages" className={`jx-card ${s.panel}`} aria-labelledby="messages-title"><div className={s.sectionHead}><div><h2 id="messages-title">Secure messages</h2><p>Message your Juvenex care team about this order</p></div></div>
+  return <section id="care-messages" className={`jx-card ${s.panel}`} aria-labelledby="messages-title"><div className={s.sectionHead}><div><h2 id="messages-title">Talk to Doctor</h2><p>Secure messages with your prescribing doctor about this order</p></div></div>
     <div className={s.messages} aria-live="polite">{messages.length?messages.map((message,index)=>{const body=text(message.text??message.body??message.message,'');const own=String(message.channel??message.sender_type??'').toLowerCase().includes('patient');return <div className={s.bubble} data-own={own} key={text(message.id,String(index))}>{body||'Attachment'}<time>{formatDate(message.created_at??message.createdAt??message.time,true)}</time></div>}):<p style={{color:'var(--jx-muted)',fontSize:14}}>No messages yet. Start a secure conversation below.</p>}</div>
     <form onSubmit={submit} style={{marginTop:18}}><div className={s.field}><label htmlFor="care-message">Your message</label><textarea id="care-message" className="jx-input" maxLength={10000} value={textValue} onChange={(event)=>setTextValue(event.target.value)} placeholder="How can your care team help?" /></div><div className={s.file}><label htmlFor="care-file" style={{fontWeight:600}}>Optional image or PDF</label><input ref={fileRef} id="care-file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(event)=>setFile(event.target.files?.[0]??null)} style={{display:'block',marginTop:7,maxWidth:'100%'}} />{file?<span>Selected: {file.name}</span>:null}</div>{error?<div className={s.error} role="alert" style={{marginTop:12}}>{error}</div>:null}<div className={s.actions}><button className="jx-btn jx-btn-primary" disabled={busy}>{busy?<><SpinnerIcon/>Sending…</>:'Send securely'}</button></div></form>
   </section>

@@ -28,7 +28,7 @@ import {
 const UTILITY_LINKS = [
   { label: 'For Clinics & Providers', href: '/white-label' },
   { label: 'About Us', href: '/landing' },
-  { label: 'Messages / Care', href: '/messages' },
+  { label: 'Talk to My Doctor', href: '/store/account/doctor' },
 ]
 
 const NAV_LINKS = [
@@ -234,6 +234,9 @@ export function JxChrome() {
             <hr className="jx-drawer-rule" />
             <Link href="/store/account/orders" className="jx-drawer-link">
               My orders
+            </Link>
+            <Link href="/store/account/doctor" className="jx-drawer-link">
+              Talk to My Doctor
             </Link>
             {UTILITY_LINKS.map((link) => (
               <Link key={link.label} href={link.href} className="jx-drawer-link jx-drawer-link-sm">
