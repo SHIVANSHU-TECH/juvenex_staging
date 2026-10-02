@@ -55,8 +55,7 @@ export async function POST(request: NextRequest) {
     }
     const eligibleIds = grouponGate.productIds
 
-    const siteIdRaw = process.env.JUVENEX_CHECKOUT_SITE_ID
-    const siteId = siteIdRaw ? Number(siteIdRaw) : NaN
+    const siteId = 453
 
     // 2) Existing coupon API — only for products that passed the Groupon gate.
     if (Number.isFinite(siteId) && siteId > 0) {
