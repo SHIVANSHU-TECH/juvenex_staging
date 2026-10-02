@@ -3,6 +3,7 @@ import { DM_Sans, Outfit } from "next/font/google";
 import { Providers } from "./providers";
 import TapfiliateScript from "@/components/TapfiliateScript";
 import MetricoolScript from "@/components/MetricoolScript";
+import LeadConnectorChatWidget from "@/components/LeadConnectorChatWidget";
 import ClientErrorReporter from "@/components/ClientErrorReporter";
 import NativeAppGate from "@/components/NativeAppGate";
 import { BASE_PATH } from "@/lib/base-path";
@@ -91,6 +92,7 @@ export default function RootLayout({
         </Providers>
         <TapfiliateScript />
         <MetricoolScript />
+        <LeadConnectorChatWidget />
         <ClientErrorReporter />
       </body>
     </html>

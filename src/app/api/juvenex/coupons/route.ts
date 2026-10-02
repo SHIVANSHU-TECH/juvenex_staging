@@ -1,7 +1,7 @@
 /**
  * Coupon check flow (Nextvial-aligned):
  * 1) Top layer — groupon/check-coupon (Sema vs Tirz product eligibility)
- * 2) Existing — check_coupons_v3 (site_id=612) or Juvenex Check_Coupons fallback
+ * 2) Existing — check_coupons_v3 (site_id=453) or Juvenex Check_Coupons fallback
  */
 import type { NextRequest } from 'next/server'
 import { juvenexClient } from '@/lib/juvenex/client'
