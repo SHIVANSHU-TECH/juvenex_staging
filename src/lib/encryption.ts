@@ -30,37 +30,41 @@ const KEY_VERSION = 1 as const
 const V1_PREFIX = `v${KEY_VERSION}:`
 const SCRYPT_KEY_LEN = 32
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
-if (!ENCRYPTION_KEY) {
-  throw new Error('ENCRYPTION_KEY environment variable is required')
-}
-if (ENCRYPTION_KEY.length < 32) {
-  throw new Error('ENCRYPTION_KEY must be at least 32 characters')
-}
+// Derived once on first use. scrypt is deliberately expensive, so we do not
+// re-run it on every call. Checked here (not at import) so a build can load
+// route modules before the host has injected env vars.
+let derivedKeys: { v1: Buffer; legacy: Buffer } | null = null
 
-const ENCRYPTION_KEY_SALT = process.env.ENCRYPTION_KEY_SALT
-if (!ENCRYPTION_KEY_SALT) {
-  throw new Error(
-    'ENCRYPTION_KEY_SALT environment variable is required (32 random bytes hex). ' +
-      'Never rotate this salt without re-encrypting all existing PHI ciphertexts.'
-  )
-}
-if (ENCRYPTION_KEY_SALT.length < 32) {
-  throw new Error('ENCRYPTION_KEY_SALT must be at least 32 characters (hex-encoded bytes)')
-}
+function keys(): { v1: Buffer; legacy: Buffer } {
+  if (derivedKeys) return derivedKeys
 
-// Derive both keys once at module load. scrypt is deliberately expensive so
-// we avoid re-running it on every call.
-const V1_KEY: Buffer = scryptSync(
-  ENCRYPTION_KEY,
-  Buffer.from(ENCRYPTION_KEY_SALT, 'utf8'),
-  SCRYPT_KEY_LEN
-)
+  const encryptionKey = process.env.ENCRYPTION_KEY
+  if (!encryptionKey) {
+    throw new Error('ENCRYPTION_KEY environment variable is required')
+  }
+  if (encryptionKey.length < 32) {
+    throw new Error('ENCRYPTION_KEY must be at least 32 characters')
+  }
 
-// Legacy key retained ONLY so historical ciphertexts written before the
-// scrypt migration (e.g. appointments.intake_data rows) remain decryptable.
-// Do not use for new writes.
-const LEGACY_KEY: Buffer = createHash('sha256').update(ENCRYPTION_KEY).digest()
+  const encryptionKeySalt = process.env.ENCRYPTION_KEY_SALT
+  if (!encryptionKeySalt) {
+    throw new Error(
+      'ENCRYPTION_KEY_SALT environment variable is required (32 random bytes hex). ' +
+        'Never rotate this salt without re-encrypting all existing PHI ciphertexts.'
+    )
+  }
+  if (encryptionKeySalt.length < 32) {
+    throw new Error('ENCRYPTION_KEY_SALT must be at least 32 characters (hex-encoded bytes)')
+  }
+
+  derivedKeys = {
+    v1: scryptSync(encryptionKey, Buffer.from(encryptionKeySalt, 'utf8'), SCRYPT_KEY_LEN),
+    // Legacy key retained ONLY so historical ciphertexts written before the
+    // scrypt migration remain decryptable. Do not use for new writes.
+    legacy: createHash('sha256').update(encryptionKey).digest(),
+  }
+  return derivedKeys
+}
 
 function encryptWithKey(plaintext: string, key: Buffer): {
   iv: Buffer
@@ -91,7 +95,7 @@ function decryptWithKey(
 }
 
 export function encryptPHI(plaintext: string): string {
-  const { iv, authTag, ciphertext } = encryptWithKey(plaintext, V1_KEY)
+  const { iv, authTag, ciphertext } = encryptWithKey(plaintext, keys().v1)
   return `${V1_PREFIX}${iv.toString('hex')}:${authTag.toString('hex')}:${ciphertext}`
 }
 
@@ -108,7 +112,7 @@ export function decryptPHI(ciphertext: string): string {
       }
       const [ivHex, authTagHex, encrypted] = parts
       if (versionTag === `v${KEY_VERSION}`) {
-        return decryptWithKey(ivHex, authTagHex, encrypted, V1_KEY)
+        return decryptWithKey(ivHex, authTagHex, encrypted, keys().v1)
       }
       throw new Error(`Unsupported ciphertext version: ${versionTag}`)
     }
@@ -120,7 +124,7 @@ export function decryptPHI(ciphertext: string): string {
     throw new Error('Invalid legacy ciphertext envelope')
   }
   const [ivHex, authTagHex, encrypted] = parts
-  return decryptWithKey(ivHex, authTagHex, encrypted, LEGACY_KEY)
+  return decryptWithKey(ivHex, authTagHex, encrypted, keys().legacy)
 }
 
 export function encryptArray(items: string[]): string {

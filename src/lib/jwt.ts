@@ -1,22 +1,25 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
-const JWT_SECRET = process.env.JWT_SECRET
-if (!JWT_SECRET) throw new Error('JWT_SECRET environment variable is required')
-const _JWT_SECRET: string = JWT_SECRET
 const TOKEN_EXPIRY = '7d'
 
 interface TokenPayload {
   userId: string
 }
 
+function jwtSecret(): string {
+  const secret = process.env.JWT_SECRET
+  if (!secret) throw new Error('JWT_SECRET environment variable is required')
+  return secret
+}
+
 export function signToken(userId: string): string {
-  return jwt.sign({ userId }, _JWT_SECRET, { expiresIn: TOKEN_EXPIRY })
+  return jwt.sign({ userId }, jwtSecret(), { expiresIn: TOKEN_EXPIRY })
 }
 
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    const decoded = jwt.verify(token, _JWT_SECRET) as TokenPayload
+    const decoded = jwt.verify(token, jwtSecret()) as TokenPayload
     return decoded
   } catch {
     return null
