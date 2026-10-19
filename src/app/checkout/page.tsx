@@ -27,6 +27,13 @@ import {
   type ShippingValues,
   type StepIndex,
 } from './_components/types';
+import {
+  captureTrackingParams,
+  fireQuestionnaireWebhook,
+  patchQuestionnaireData,
+  splitFullName,
+  splitIsoDob,
+} from '@/lib/jx/questionnaireWebhook';
 
 // Snapshot of /api/payments/availability — reflects whether a real payment
 // provider is wired into this deployment. We render a graceful "saved cart"
@@ -151,6 +158,22 @@ export default function CheckoutPage() {
     setItems(loadCart());
     setCartLoaded(true);
   }, []);
+
+  // n8n webhook: capture UTMs once, then fire on every checkout step (plans = step 0).
+  useEffect(() => {
+    captureTrackingParams();
+  }, []);
+
+  useEffect(() => {
+    const pageKeys = [
+      'page:checkout-plans',
+      'page:checkout-shipping',
+      'page:checkout-intake',
+      'page:checkout-review',
+    ] as const;
+    const key = pageKeys[step] ?? `page:checkout-step-${step}`;
+    void fireQuestionnaireWebhook(key);
+  }, [step]);
 
   // In the native iOS/Android app, digital membership must be purchased via
   // Apple/Google in-app purchase on /checkout/membership — never through this
@@ -287,6 +310,19 @@ export default function CheckoutPage() {
     setBilling(result.billing);
     setUseBillingSameAsShipping(result.useBillingSameAsShipping);
     setErrorMessage(null);
+    const { firstName, lastName } = splitFullName(result.shipping.name);
+    patchQuestionnaireData({
+      firstName,
+      lastName,
+      email: result.shipping.email,
+      phone: result.shipping.phone,
+      state: result.shipping.state,
+      address: result.shipping.street,
+      address2: result.shipping.apt,
+      city: result.shipping.city,
+      zip: result.shipping.zip,
+    });
+    void fireQuestionnaireWebhook('submit:checkout-shipping', undefined, { force: true });
     setStep(intakeRequired ? 2 : 3);
   };
 
@@ -294,6 +330,19 @@ export default function CheckoutPage() {
     setIntake(values);
     setIntakeCompleted(true);
     setErrorMessage(null);
+    const dobParts = splitIsoDob(values.dob);
+    patchQuestionnaireData({
+      ...dobParts,
+      gender: values.sex,
+      weight: values.weightLbs ? String(values.weightLbs) : '',
+      heightFeet: values.heightFeet ? String(values.heightFeet) : '',
+      heightInches: String(values.heightInches ?? ''),
+      currentlyTakesMedication: values.priorGlp1 === 'yes' ? 'yes' : 'no',
+      selectedMedicationType: values.priorGlp1Which || values.currentMedications || '',
+      edPriorTreatments: values.priorGlp1Which || '',
+      edProblemDuration: values.priorGlp1Duration || '',
+    });
+    void fireQuestionnaireWebhook('submit:checkout-intake', undefined, { force: true });
     setStep(3);
   };
 

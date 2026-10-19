@@ -5,15 +5,26 @@
  * real complexity lives on /store/checkout. One unit per product (Create_Order
  * has no quantity field).
  */
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { useJxStore } from '@/components/jx/JxStore'
 import { BagLineRow } from '@/components/jx/checkout/BagLineRow'
 import { CommerceProgress } from '@/components/jx/checkout/CommerceProgress'
 import { LockIcon } from '@/components/jx/icons'
 import { formatUsd } from '@/lib/jx/catalog'
+import {
+  captureTrackingParams,
+  fireQuestionnaireWebhook,
+} from '@/lib/jx/questionnaireWebhook'
 
 export default function CartPage() {
   const { lines, subtotal, remove, hydrated } = useJxStore()
+
+  // Plans / bag open → fire n8n webhook once for this page.
+  useEffect(() => {
+    captureTrackingParams()
+    void fireQuestionnaireWebhook('page:store-cart')
+  }, [])
 
   return (
     <div className="jx-shell" style={{ paddingBlock: 40, maxWidth: 760, marginInline: 'auto' }}>

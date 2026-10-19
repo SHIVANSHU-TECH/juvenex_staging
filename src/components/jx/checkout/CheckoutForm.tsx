@@ -61,6 +61,12 @@ import {
   type LineResult,
   type StoredCheckoutSuccess,
 } from './types'
+import {
+  captureTrackingParams,
+  checkoutFieldsToPatch,
+  fireQuestionnaireWebhook,
+  trackQuestionnaireField,
+} from '@/lib/jx/questionnaireWebhook'
 
 /**
  * Stripe.js is loaded once per page, lazily, and only when a publishable key
@@ -236,6 +242,16 @@ export function CheckoutForm() {
     }))
   }, [user])
 
+  // n8n lead webhook: capture UTMs and fire as soon as checkout (plans/payment) opens.
+  useEffect(() => {
+    captureTrackingParams()
+    const email = user?.email ?? ''
+    void fireQuestionnaireWebhook(
+      'page:store-checkout',
+      email ? { email } : undefined
+    )
+  }, [user?.email])
+
   // The set of applied coupons, as a stable string, so the effect below re-runs
   // when a code is applied or removed but not on every keystroke in the input.
   const appliedCouponKey = useMemo(
@@ -317,6 +333,22 @@ export function CheckoutForm() {
   function setField<K extends keyof CheckoutFields>(key: K, value: CheckoutFields[K]) {
     setFields((f) => ({ ...f, [key]: value }))
     setErrors((e) => (e[key] ? { ...e, [key]: undefined } : e))
+    // Progressive n8n webhook: first non-empty value for each lead field fires once.
+    if (
+      key === 'firstName' ||
+      key === 'lastName' ||
+      key === 'phone' ||
+      key === 'stateName' ||
+      key === 'address' ||
+      key === 'cityName' ||
+      key === 'zipCode'
+    ) {
+      const patch = checkoutFieldsToPatch(
+        { [key]: String(value) } as Parameters<typeof checkoutFieldsToPatch>[0],
+        user?.email
+      )
+      trackQuestionnaireField(key, String(value), patch)
+    }
   }
 
   // ---- gates -------------------------------------------------------------
@@ -611,6 +643,13 @@ function CheckoutPaymentForm({
       requestAnimationFrame(() => summaryRef.current?.focus())
       return
     }
+
+    // Final n8n webhook on checkout submit (forced so submit always notifies).
+    void fireQuestionnaireWebhook(
+      'submit:store-checkout',
+      checkoutFieldsToPatch(fields, email),
+      { force: true }
+    )
 
     submittingRef.current = true
     setSubmitting(true)

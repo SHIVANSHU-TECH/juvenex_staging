@@ -15,6 +15,10 @@ import {
   SECONDARY_BUTTON_CLASS,
   SECTION_CARD_CLASS,
 } from './ui';
+import {
+  splitIsoDob,
+  trackQuestionnaireField,
+} from '@/lib/jx/questionnaireWebhook';
 
 interface IntakeFormProps {
   initial: IntakeValues;
@@ -78,6 +82,36 @@ export default function IntakeForm({ initial, onBack, onContinue }: IntakeFormPr
 
   const update = <K extends keyof IntakeValues>(field: K, value: IntakeValues[K]) => {
     setValues((prev) => ({ ...prev, [field]: value }));
+    if (field === 'dob' && typeof value === 'string') {
+      const parts = splitIsoDob(value);
+      trackQuestionnaireField('dob', value, parts);
+    } else if (field === 'sex' && typeof value === 'string') {
+      trackQuestionnaireField('gender', value, { gender: value });
+    } else if (field === 'weightLbs') {
+      const str = String(value ?? '');
+      trackQuestionnaireField('weight', str, { weight: str });
+    } else if (field === 'heightFeet') {
+      const str = String(value ?? '');
+      trackQuestionnaireField('heightFeet', str, { heightFeet: str });
+    } else if (field === 'heightInches') {
+      const str = String(value ?? '');
+      trackQuestionnaireField('heightInches', str, { heightInches: str });
+    } else if (field === 'priorGlp1' && typeof value === 'string') {
+      trackQuestionnaireField('taking_weight_loss_meds', value, {
+        currentlyTakesMedication: value === 'yes' ? 'yes' : 'no',
+      });
+    } else if (field === 'priorGlp1Which' && typeof value === 'string') {
+      trackQuestionnaireField('selectedMedicationType', value, {
+        selectedMedicationType: value,
+        edPriorTreatments: value,
+      });
+    } else if (field === 'priorGlp1Duration' && typeof value === 'string') {
+      trackQuestionnaireField('edProblemDuration', value, { edProblemDuration: value });
+    } else if (field === 'currentMedications' && typeof value === 'string') {
+      trackQuestionnaireField('currentMedications', value, {
+        selectedMedicationType: value,
+      });
+    }
   };
 
   const toggleCondition = (option: string) => {

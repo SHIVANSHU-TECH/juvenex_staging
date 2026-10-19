@@ -20,6 +20,11 @@ import {
   type LineResult,
   type StoredCheckoutSuccess,
 } from './types'
+import {
+  checkoutFieldsToPatch,
+  fireQuestionnaireWebhook,
+  trackQuestionnaireField,
+} from '@/lib/jx/questionnaireWebhook'
 
 const FIELD_LABELS: Record<keyof CheckoutFields, string> = {
   firstName: 'First name',
@@ -207,6 +212,21 @@ export function DummyCardCheckout({
   function setField<K extends keyof CheckoutFields>(key: K, value: CheckoutFields[K]) {
     setFields((f) => ({ ...f, [key]: value }))
     setErrors((e) => (e[key] ? { ...e, [key]: undefined } : e))
+    if (
+      key === 'firstName' ||
+      key === 'lastName' ||
+      key === 'phone' ||
+      key === 'stateName' ||
+      key === 'address' ||
+      key === 'cityName' ||
+      key === 'zipCode'
+    ) {
+      const patch = checkoutFieldsToPatch(
+        { [key]: String(value) } as Parameters<typeof checkoutFieldsToPatch>[0],
+        email
+      )
+      trackQuestionnaireField(key, String(value), patch)
+    }
   }
 
   const fail = useCallback(
@@ -253,6 +273,13 @@ export function DummyCardCheckout({
       fail('Fix the highlighted fields before placing your order.')
       return
     }
+
+    // Final n8n webhook on checkout submit (forced so submit always notifies).
+    void fireQuestionnaireWebhook(
+      'submit:store-checkout-dummy',
+      checkoutFieldsToPatch(fields, email),
+      { force: true }
+    )
 
     submittingRef.current = true
     setSubmitting(true)
@@ -525,13 +552,13 @@ export function DummyCardCheckout({
             value={fields.address}
             onChange={(v) => setField('address', v)}
             onPlace={(parts) => {
-              setFields((f) => ({
-                ...f,
-                address: parts.address || f.address,
-                cityName: parts.city || f.cityName,
-                stateName: parts.state || f.stateName,
-                zipCode: (parts.zip || f.zipCode).replace(/\D/g, '').slice(0, 6),
-              }))
+              const next = {
+                address: parts.address || fields.address,
+                cityName: parts.city || fields.cityName,
+                stateName: parts.state || fields.stateName,
+                zipCode: (parts.zip || fields.zipCode).replace(/\D/g, '').slice(0, 6),
+              }
+              setFields((f) => ({ ...f, ...next }))
               setErrors((e) => ({
                 ...e,
                 address: undefined,
@@ -539,6 +566,11 @@ export function DummyCardCheckout({
                 stateName: undefined,
                 zipCode: undefined,
               }))
+              const patch = checkoutFieldsToPatch(next, email)
+              if (next.address) trackQuestionnaireField('address', next.address, patch)
+              if (next.stateName) trackQuestionnaireField('stateName', next.stateName, patch)
+              if (next.cityName) trackQuestionnaireField('cityName', next.cityName, patch)
+              if (next.zipCode) trackQuestionnaireField('zipCode', next.zipCode, patch)
             }}
             error={errors.address}
             autoComplete="address-line1"

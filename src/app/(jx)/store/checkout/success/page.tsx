@@ -25,6 +25,7 @@ import { formatUsd } from '@/lib/jx/catalog'
 import { CHECKOUT_SUCCESS_KEY, type StoredCheckoutSuccess } from '@/components/jx/checkout/types'
 import { fetchPendingForms, hasIntakeCta, intakeFormUrl, INTAKE_ENABLED } from '@/lib/jx/intake'
 import { saveIntakeReturnTo } from '@/lib/jx/pending-add'
+import { fireQuestionnaireWebhook } from '@/lib/jx/questionnaireWebhook'
 import type { PendingForm } from '@/lib/juvenex/schemas'
 
 function readStoredResult(): StoredCheckoutSuccess | null {
@@ -136,6 +137,7 @@ export default function CheckoutSuccessPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of a browser-only store; there's no React state to derive this from.
     setData(readStoredResult())
+    void fireQuestionnaireWebhook('page:store-checkout-success')
   }, [])
 
   if (data === undefined) {

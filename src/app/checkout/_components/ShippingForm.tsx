@@ -16,6 +16,10 @@ import {
   SECONDARY_BUTTON_CLASS,
   SECTION_CARD_CLASS,
 } from './ui';
+import {
+  splitFullName,
+  trackQuestionnaireField,
+} from '@/lib/jx/questionnaireWebhook';
 
 const US_STATES: ReadonlyArray<{ code: string; name: string }> = [
   { code: 'AL', name: 'Alabama' }, { code: 'AK', name: 'Alaska' },
@@ -161,6 +165,18 @@ export default function ShippingForm({
   const updateShipping = <K extends keyof ShippingValues>(field: K, value: ShippingValues[K]) => {
     setShipping((prev) => ({ ...prev, [field]: value }));
     clearErrorIfValid(`shipping_${String(field)}`, String(field), value);
+    const str = String(value ?? '');
+    if (field === 'name') {
+      const { firstName, lastName } = splitFullName(str);
+      trackQuestionnaireField('firstName', firstName, { firstName, lastName });
+      if (lastName) trackQuestionnaireField('lastName', lastName, { lastName });
+    } else if (field === 'email') {
+      trackQuestionnaireField('email', str, { email: str });
+    } else if (field === 'phone') {
+      trackQuestionnaireField('phone', str, { phone: str });
+    } else if (field === 'state') {
+      trackQuestionnaireField('state', str, { state: str });
+    }
   };
 
   const updateBilling = <K extends keyof BillingValues>(field: K, value: BillingValues[K]) => {

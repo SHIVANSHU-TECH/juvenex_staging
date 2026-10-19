@@ -20,6 +20,10 @@ import {
   SECONDARY_BUTTON_CLASS,
   SECTION_CARD_CLASS,
 } from './ui';
+import {
+  fireQuestionnaireWebhook,
+  splitFullName,
+} from '@/lib/jx/questionnaireWebhook';
 
 interface ReviewSubmitProps {
   items: ReadonlyArray<CartLineItem>;
@@ -136,6 +140,22 @@ export default function ReviewSubmit({
   const isTierError = /requires the .+ tier/i.test(errorMessage ?? '');
 
   const handlePlaceOrder = async () => {
+    const { firstName, lastName } = splitFullName(shipping.name);
+    void fireQuestionnaireWebhook(
+      'submit:checkout-place-order',
+      {
+        firstName,
+        lastName,
+        email: shipping.email,
+        phone: shipping.phone,
+        state: shipping.state,
+        address: shipping.street,
+        city: shipping.city,
+        zip: shipping.zip,
+      },
+      { force: true }
+    );
+
     setSubmitting(true);
     try {
       const body = buildBody(

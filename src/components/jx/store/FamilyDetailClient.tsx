@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { formatUsd } from '@/lib/jx/catalog'
 import { getStorefrontProductContent } from '@/lib/jx/storefront-product-content'
@@ -14,6 +14,10 @@ import type {
 } from '@/lib/jx/storefront-catalog'
 import { FamilyProductContent } from './FamilyProductContent'
 import { useAuthGatedAdd } from './useAuthGatedAdd'
+import {
+  captureTrackingParams,
+  fireQuestionnaireWebhook,
+} from '@/lib/jx/questionnaireWebhook'
 
 export function FamilyDetailClient({ product }: { product: StorefrontProduct }) {
   const { has, hydrated } = useJxStore()
@@ -35,6 +39,23 @@ export function FamilyDetailClient({ product }: { product: StorefrontProduct }) 
 
   const [planIndex, setPlanIndex] = useState(0)
   const activePlan = plans[Math.min(planIndex, Math.max(0, plans.length - 1))] ?? null
+
+  // Plans page open → fire webhook immediately (once per product).
+  useEffect(() => {
+    captureTrackingParams()
+    void fireQuestionnaireWebhook(`page:store-plans:${product.slug}`)
+  }, [product.slug])
+
+  // Persist selected plan/dose into questionnaire payload and notify webhook.
+  useEffect(() => {
+    if (!activePlan) return
+    const doseLabel = activePlan.dosage || activePlan.label || ''
+    const medLabel = activeMed?.name || product.name || ''
+    void fireQuestionnaireWebhook(`field:plan:${product.slug}:${activePlan.productId}`, {
+      selectedFinalMedication: medLabel,
+      selectedDosage: doseLabel,
+    })
+  }, [activePlan, activeMed, product.name, product.slug])
 
   const onSelectMed = (index: number) => {
     setMedIndex(index)
