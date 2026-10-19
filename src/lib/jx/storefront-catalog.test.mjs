@@ -56,10 +56,10 @@ describe('storefront-catalog.generated', () => {
     assert.deepEqual(
       sema.plans.map((p) => [p.sku, p.productId, p.dosage]),
       [
-        ['SEMA-0.5MG-30-D', '2', '0.5 mg/week'],
-        ['SG-MAINT-S3-A', '47', '0.25 mg/week'],
-        ['SEMA-0.5MG-30-D-6M', '35', '0.5 mg/week'],
-        ['SEMA-0.5MG-30-D-12M', '41', '0.5 mg/week'],
+        ['SEMA-1M', '46', '0.25 mg/week'],
+        ['SEMA-3M', '47', '0.25 mg/week'],
+        ['SEMA-6M', '48', '0.25 mg/week'],
+        ['SEMA-12M', '49', '0.25 mg/week'],
       ]
     )
   })
@@ -68,8 +68,13 @@ describe('storefront-catalog.generated', () => {
     const tirz = products.find((p) => p.slug === 'tirzepatide')
     assert.ok(tirz)
     assert.deepEqual(
-      tirz.plans.map((p) => p.productId),
-      ['50', '51', '52', '53']
+      tirz.plans.map((p) => [p.sku, p.productId]),
+      [
+        ['TIRZ-1M', '50'],
+        ['TIRZ-3M', '51'],
+        ['TIRZ-6M', '52'],
+        ['TIRZ-12M', '53'],
+      ]
     )
   })
 

@@ -23,21 +23,19 @@ export interface CheckoutMapping {
 }
 
 /**
- * Required Tirzepatide (2.5 mg/week only) and Semaglutide duration mappings.
+ * Required Tirzepatide / Semaglutide duration mappings.
  *
- * Checkout URL / productId / SKU match juvenex.xlsx Sheet1 preferred rows.
- * Sticky IDs below are the audit-brief values (380xx). The available workbook
- * Sheet1 lists different Sticky IDs for the same checkout URLs (e.g. id=50 →
- * Sheet1 Sticky 38798). This app does not send Sticky IDs to checkout — only
- * productId — so checkout routing uses productId exclusively.
+ * SKUs are the Sheet1 alias codes (SEMA-1M…SEMA-12M, TIRZ-1M…TIRZ-12M).
+ * productId / checkoutUrl use the preferred Excel rows (?id=46–53).
+ * Sticky IDs match Sheet1 for those rows. Checkout posts productId only.
  */
 export const REQUIRED_CHECKOUT_MAPPINGS: readonly CheckoutMapping[] = [
   {
     product: 'Tirzepatide',
     durationMonths: 1,
     dosage: '2.5 mg/week',
-    sku: 'TIRZ-CR1',
-    stickyId: '38093',
+    sku: 'TIRZ-1M',
+    stickyId: '38798',
     productId: '50',
     checkoutUrl: 'https://checkout.juvenex.app/?id=50',
   },
@@ -45,8 +43,8 @@ export const REQUIRED_CHECKOUT_MAPPINGS: readonly CheckoutMapping[] = [
     product: 'Tirzepatide',
     durationMonths: 3,
     dosage: '2.5 mg/week',
-    sku: 'TZ-MAINT-S2-A',
-    stickyId: '38094',
+    sku: 'TIRZ-3M',
+    stickyId: '38799',
     productId: '51',
     checkoutUrl: 'https://checkout.juvenex.app/?id=51',
   },
@@ -54,8 +52,8 @@ export const REQUIRED_CHECKOUT_MAPPINGS: readonly CheckoutMapping[] = [
     product: 'Tirzepatide',
     durationMonths: 6,
     dosage: '2.5 mg/week',
-    sku: 'TIRZ-2.5MG-30-6B',
-    stickyId: '38095',
+    sku: 'TIRZ-6M',
+    stickyId: '38800',
     productId: '52',
     checkoutUrl: 'https://checkout.juvenex.app/?id=52',
   },
@@ -63,46 +61,46 @@ export const REQUIRED_CHECKOUT_MAPPINGS: readonly CheckoutMapping[] = [
     product: 'Tirzepatide',
     durationMonths: 12,
     dosage: '2.5 mg/week',
-    sku: 'TIRZ-2.5MG-30-12B',
-    stickyId: '38096',
+    sku: 'TIRZ-12M',
+    stickyId: '38801',
     productId: '53',
     checkoutUrl: 'https://checkout.juvenex.app/?id=53',
   },
   {
     product: 'Semaglutide',
     durationMonths: 1,
-    dosage: '0.5 mg/week',
-    sku: 'SEMA-0.5MG-30-D',
-    stickyId: '38045',
-    productId: '2',
-    checkoutUrl: 'https://checkout.juvenex.app/?id=2',
+    dosage: '0.25 mg/week',
+    sku: 'SEMA-1M',
+    stickyId: '38794',
+    productId: '46',
+    checkoutUrl: 'https://checkout.juvenex.app/?id=46',
   },
   {
     product: 'Semaglutide',
     durationMonths: 3,
     dosage: '0.25 mg/week',
-    sku: 'SG-MAINT-S3-A',
-    stickyId: '38090',
+    sku: 'SEMA-3M',
+    stickyId: '38795',
     productId: '47',
     checkoutUrl: 'https://checkout.juvenex.app/?id=47',
   },
   {
     product: 'Semaglutide',
     durationMonths: 6,
-    dosage: '0.5 mg/week',
-    sku: 'SEMA-0.5MG-30-D-6M',
-    stickyId: '38078',
-    productId: '35',
-    checkoutUrl: 'https://checkout.juvenex.app/?id=35',
+    dosage: '0.25 mg/week',
+    sku: 'SEMA-6M',
+    stickyId: '38796',
+    productId: '48',
+    checkoutUrl: 'https://checkout.juvenex.app/?id=48',
   },
   {
     product: 'Semaglutide',
     durationMonths: 12,
-    dosage: '0.5 mg/week',
-    sku: 'SEMA-0.5MG-30-D-12M',
-    stickyId: '38084',
-    productId: '41',
-    checkoutUrl: 'https://checkout.juvenex.app/?id=41',
+    dosage: '0.25 mg/week',
+    sku: 'SEMA-12M',
+    stickyId: '38797',
+    productId: '49',
+    checkoutUrl: 'https://checkout.juvenex.app/?id=49',
   },
 ] as const
 

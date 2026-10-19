@@ -142,16 +142,16 @@ export const STOREFRONT_PRODUCTS: StorefrontProduct[] = [
     "plans": [
       {
         "label": "1 month",
-        "sku": "SEMA-0.5MG-30-D",
+        "sku": "SEMA-1M",
         "months": 1,
-        "productId": "2",
-        "checkoutUrl": "https://checkout.juvenex.app/?id=2",
+        "productId": "46",
+        "checkoutUrl": "https://checkout.juvenex.app/?id=46",
         "price": 190,
-        "dosage": "0.5 mg/week"
+        "dosage": "0.25 mg/week"
       },
       {
         "label": "3 months",
-        "sku": "SG-MAINT-S3-A",
+        "sku": "SEMA-3M",
         "months": 3,
         "productId": "47",
         "checkoutUrl": "https://checkout.juvenex.app/?id=47",
@@ -160,21 +160,21 @@ export const STOREFRONT_PRODUCTS: StorefrontProduct[] = [
       },
       {
         "label": "6 months",
-        "sku": "SEMA-0.5MG-30-D-6M",
+        "sku": "SEMA-6M",
         "months": 6,
-        "productId": "35",
-        "checkoutUrl": "https://checkout.juvenex.app/?id=35",
+        "productId": "48",
+        "checkoutUrl": "https://checkout.juvenex.app/?id=48",
         "price": 714,
-        "dosage": "0.5 mg/week"
+        "dosage": "0.25 mg/week"
       },
       {
         "label": "12 months",
-        "sku": "SEMA-0.5MG-30-D-12M",
+        "sku": "SEMA-12M",
         "months": 12,
-        "productId": "41",
-        "checkoutUrl": "https://checkout.juvenex.app/?id=41",
+        "productId": "49",
+        "checkoutUrl": "https://checkout.juvenex.app/?id=49",
         "price": 1188,
-        "dosage": "0.5 mg/week"
+        "dosage": "0.25 mg/week"
       }
     ],
     "startingPrice": 190
@@ -188,7 +188,7 @@ export const STOREFRONT_PRODUCTS: StorefrontProduct[] = [
     "plans": [
       {
         "label": "1 month",
-        "sku": "TIRZ-CR1",
+        "sku": "TIRZ-1M",
         "months": 1,
         "productId": "50",
         "checkoutUrl": "https://checkout.juvenex.app/?id=50",
@@ -197,7 +197,7 @@ export const STOREFRONT_PRODUCTS: StorefrontProduct[] = [
       },
       {
         "label": "3 months",
-        "sku": "TZ-MAINT-S2-A",
+        "sku": "TIRZ-3M",
         "months": 3,
         "productId": "51",
         "checkoutUrl": "https://checkout.juvenex.app/?id=51",
@@ -206,7 +206,7 @@ export const STOREFRONT_PRODUCTS: StorefrontProduct[] = [
       },
       {
         "label": "6 months",
-        "sku": "TIRZ-2.5MG-30-6B",
+        "sku": "TIRZ-6M",
         "months": 6,
         "productId": "52",
         "checkoutUrl": "https://checkout.juvenex.app/?id=52",
@@ -215,7 +215,7 @@ export const STOREFRONT_PRODUCTS: StorefrontProduct[] = [
       },
       {
         "label": "12 months",
-        "sku": "TIRZ-2.5MG-30-12B",
+        "sku": "TIRZ-12M",
         "months": 12,
         "productId": "53",
         "checkoutUrl": "https://checkout.juvenex.app/?id=53",
@@ -1614,10 +1614,10 @@ export const STOREFRONT_SKIPPED = [
     "skus": []
   },
   {
-    "product": "sg-maint-s3-a-excel-duplicate",
+    "product": "sema-3m-excel-duplicate",
     "reason": "ambiguous_excel_rows_prefer_productId_47_over_13",
     "skus": [
-      "SG-MAINT-S3-A"
+      "SEMA-3M"
     ]
   },
   {
